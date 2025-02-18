@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PDFStorage } from '@/lib/pdf/storage';
+import { PDFHandler } from '@/lib/pdf/storage';
 
 export const runtime = 'nodejs';
 
-const storage = new PDFStorage();
+const storage = new PDFHandler();
 
 export async function POST(request: Request) {
   try {

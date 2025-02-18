@@ -55,24 +55,4 @@ export class PDFProcessor {
       }
     }
   }
-
-  async render(buffer: ArrayBuffer, container: HTMLElement) {
-    const pdf = await getDocument({ data: buffer }).promise;
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: 1.0 });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d')!;
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      container.appendChild(canvas);
-
-      await page.render({
-        canvasContext: context,
-        viewport,
-      }).promise;
-    }
-  }
 }

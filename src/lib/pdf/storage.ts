@@ -2,7 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { ResumeMetadata } from '@/types/resume';
 import { PDFProcessor } from '@/lib/pdf/processor';
 
-export class PDFStorage {
+export class PDFHandler {
   private pdfProcessor: PDFProcessor;
   private supabase: SupabaseClient;
 
@@ -67,5 +67,35 @@ export class PDFStorage {
   async deleteResume(id: string): Promise<void> {
     const { error } = await this.supabase.from('resumes').delete().eq('id', id);
     if (error) throw error;
+  }
+
+  async updateResume(
+    id: string,
+    file: ArrayBuffer,
+    fileName: string
+  ): Promise<ResumeMetadata> {
+    const now = new Date().toISOString();
+    const textContent = await this.pdfProcessor.extractText(file);
+
+    const { error: dbError } = await this.supabase
+      .from('resumes')
+      .update({
+        file_name: fileName,
+        updated_at: now,
+        title: fileName.replace('.pdf', ''),
+        parsed_content: textContent,
+      })
+      .eq('id', id);
+
+    if (dbError) throw dbError;
+
+    return {
+      id,
+      fileName,
+      createdAt: now, // We'll get this from the existing record
+      updatedAt: now,
+      title: fileName.replace('.pdf', ''),
+      parsedContent: textContent,
+    };
   }
 }
