@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PDFHandler } from '@/lib/pdf/storage';
+import { PDFHandler } from '@/lib/pdf/handler';
 
 export const runtime = 'nodejs';
 
-const storage = new PDFHandler();
+const handler = new PDFHandler();
 
 export async function GET(
   request: Request,
@@ -11,7 +11,7 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const metadata = await storage.getResume(id);
+    const metadata = await handler.getResume(id);
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
     console.error('Error fetching resume:', error);
@@ -41,7 +41,7 @@ export async function PUT(
     }
 
     const buffer = await file.arrayBuffer();
-    const metadata = await storage.updateResume(id, buffer, file.name);
+    const metadata = await handler.updateResume(id, buffer, file.name);
 
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
@@ -58,13 +58,31 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = await params;
+  try {
+    const updates = await request.json();
+    const metadata = await handler.updateParsedObject(id, updates);
+    return NextResponse.json(metadata, { status: 200 });
+  } catch (error) {
+    console.error('Error updating resume:', error);
+    return NextResponse.json(
+      { error: 'Failed to update resume' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
   try {
-    await storage.deleteResume(id);
+    await handler.deleteResume(id);
     return NextResponse.json(
       { message: 'Resume deleted successfully' },
       { status: 200 }

@@ -1,9 +1,8 @@
-// import natural from 'natural';
-import { ResumeContentObject } from '@/types/resume';
+import { ResumeContentObject } from '@/types';
 
 export class ResumeParser {
   private static readonly SECTION_HEADERS = {
-    summary: ['summary', 'professional summary', 'overview', 'objective'],
+    summary: ['professional summary', 'summary', 'overview', 'objective'],
     skills: ['skills', 'technical skills', 'core competencies', 'expertise'],
     experience: [
       'experience',
@@ -49,31 +48,37 @@ export class ResumeParser {
     { start: number; end: number }
   > {
     const boundaries: Record<string, { start: number; end: number }> = {};
+    const foundSections: { name: string; index: number }[] = [];
 
-    // Identify the start index for each section
-    Object.entries(ResumeParser.SECTION_HEADERS).forEach(
-      ([section, headers]) => {
-        const start = this.segments.findIndex((s) =>
-          headers.some((h) => s.toLowerCase().includes(h.toLowerCase()))
-        );
-        boundaries[section] = { start, end: -1 };
-      }
-    );
-
-    // Set end boundaries
-    const sections = Object.keys(boundaries);
-    sections.forEach((section, index) => {
-      if (index < sections.length - 1) {
-        boundaries[section].end = boundaries[sections[index + 1]].start;
-      } else {
-        boundaries[section].end = this.segments.length;
-      }
+    // Find all section headers and their positions
+    this.segments.forEach((segment, index) => {
+      const normalizedSegment = segment.trim().toLowerCase();
+      Object.entries(ResumeParser.SECTION_HEADERS).forEach(
+        ([section, headers]) => {
+          if (headers.some((h) => normalizedSegment === h.toLowerCase())) {
+            foundSections.push({ name: section, index });
+          }
+        }
+      );
     });
 
-    // Log warnings for missing sections
-    Object.entries(boundaries).forEach(([name, { start, end }]) => {
-      if (start === -1) console.warn(`${name} section not found`);
-      if (end === -1) console.warn(`Section after ${name} not found`);
+    // Sort sections by their position in the document
+    foundSections.sort((a, b) => a.index - b.index);
+
+    // Set boundaries for each section
+    foundSections.forEach((section, index) => {
+      const nextSection = foundSections[index + 1];
+      boundaries[section.name] = {
+        start: section.index,
+        end: nextSection ? nextSection.index : this.segments.length,
+      };
+    });
+
+    // Initialize missing sections with -1
+    Object.keys(ResumeParser.SECTION_HEADERS).forEach((section) => {
+      if (!boundaries[section]) {
+        boundaries[section] = { start: -1, end: -1 };
+      }
     });
 
     return boundaries;
@@ -208,7 +213,7 @@ export class ResumeParser {
     const headerInfo = {
       name: this.segments[0] || '',
       location: this.segments[1] || '',
-      contact: this.segments.slice(2, 5).join(' ') || '',
+      contact: this.segments[2] || '',
     };
 
     // Parse contact information
@@ -216,7 +221,7 @@ export class ResumeParser {
 
     // Parse summary
     const summary =
-      this.sections.summary.start !== -1 && this.sections.summary.end !== -1
+      this.sections.summary.start !== -1
         ? this.segments
             .slice(this.sections.summary.start + 1, this.sections.summary.end)
             .join(' ')
@@ -224,12 +229,17 @@ export class ResumeParser {
 
     // Parse skills
     const skillsStr =
-      this.sections.skills.start !== -1 && this.sections.skills.end !== -1
+      this.sections.skills.start !== -1
         ? this.segments
             .slice(this.sections.skills.start + 1, this.sections.skills.end)
             .join(' ')
         : '';
-    const skills = skillsStr ? skillsStr.split(',').map((s) => s.trim()) : [];
+    const skills = skillsStr
+      ? skillsStr
+          .split(/[,\s]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
 
     // Parse experience
     const experience =

@@ -1,8 +1,3 @@
-export interface UploadZoneProps {
-  onFileChange: (file: File | null) => void;
-}
-
-export interface JobDescriptionInputProps {
-  jobDescription: string;
-  setJobDescription: (jobDescription: string) => void;
-}
+export * from './resume';
+export * from './api';
+export * from './components';

@@ -1,7 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { ResumeMetadata, ResumeContentObject } from '@/types/resume';
+import { ResumeMetadata, ResumeContentObject } from '@/types';
 import { PDFProcessor } from '@/lib/pdf/processor';
-import { ResumeParser } from '@/lib/parse-text';
+import { parseResume as parseLLM } from '@/lib/parser/parse-text-llm';
+import { parseResume as parsePattern } from '@/lib/parser/parse-text';
 
 export class PDFHandler {
   private pdfProcessor: PDFProcessor;
@@ -15,11 +16,27 @@ export class PDFHandler {
     );
   }
 
-  private parseContent(textContent: string): ResumeContentObject {
-    const parser = new ResumeParser(textContent);
-    const parsed = parser.parse();
-    // Ensure the parsed object has an ID
-    return { ...parsed, id: crypto.randomUUID() };
+  private async parseContent(
+    textContent: string
+  ): Promise<ResumeContentObject> {
+    const id = crypto.randomUUID();
+
+    try {
+      // Try LLM parsing first
+      const parsed = await parseLLM(
+        textContent,
+        process.env.OPENROUTER_API_KEY!
+      );
+      return { ...parsed, id };
+    } catch (error) {
+      console.error(
+        'LLM parsing failed, falling back to pattern parsing:',
+        error
+      );
+      // Fallback to pattern-based parsing
+      const parsed = parsePattern(textContent);
+      return { ...parsed, id };
+    }
   }
 
   async saveResume(
@@ -29,7 +46,7 @@ export class PDFHandler {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const textContent = await this.pdfProcessor.extractText(file);
-    const parsedObject = this.parseContent(textContent);
+    const parsedObject = await this.parseContent(textContent);
 
     const { error: dbError } = await this.supabase.from('resumes').insert({
       id,
@@ -88,7 +105,7 @@ export class PDFHandler {
   ): Promise<ResumeMetadata> {
     const now = new Date().toISOString();
     const textContent = await this.pdfProcessor.extractText(file);
-    const parsedObject = this.parseContent(textContent);
+    const parsedObject = await this.parseContent(textContent);
 
     const { error: dbError } = await this.supabase
       .from('resumes')
@@ -118,6 +135,44 @@ export class PDFHandler {
       title: fileName.replace('.pdf', ''),
       parsedContent: textContent,
       parsedObject,
+    };
+  }
+
+  async updateParsedObject(
+    id: string,
+    parsedObject: ResumeContentObject
+  ): Promise<ResumeMetadata> {
+    const now = new Date().toISOString();
+
+    const { error: dbError } = await this.supabase
+      .from('resumes')
+      .update({
+        updated_at: now,
+        parsed_object: parsedObject,
+      })
+      .eq('id', id);
+
+    if (dbError) throw dbError;
+
+    // Get the full record to return
+    const { data: metadata, error } = await this.supabase
+      .from('resumes')
+      .select()
+      .eq('id', id)
+      .single();
+
+    if (error || !metadata) {
+      throw new Error('Resume not found after update');
+    }
+
+    return {
+      id: metadata.id,
+      fileName: metadata.file_name,
+      createdAt: metadata.created_at,
+      updatedAt: metadata.updated_at,
+      title: metadata.title,
+      parsedContent: metadata.parsed_content,
+      parsedObject: metadata.parsed_object,
     };
   }
 }

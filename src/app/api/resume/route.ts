@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PDFHandler } from '@/lib/pdf/storage';
+import { PDFHandler } from '@/lib/pdf/handler';
 
 export const runtime = 'nodejs';
 

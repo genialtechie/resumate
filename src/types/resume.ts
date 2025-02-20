@@ -15,11 +15,6 @@ export interface StorageConfig {
   metadataDir: string;
 }
 
-export interface PDFEditorProps {
-  parsedContent: string; // Parsed text content
-  resumeId: string;
-}
-
 export interface Section {
   id: string;
   type: 'experience' | 'education' | 'skills';

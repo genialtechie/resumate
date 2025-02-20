@@ -108,7 +108,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md">
+    <div className="max-w-3xl mx-auto p-6 bg-white border shadow-md font-serif">
       {/* Header Section */}
       <div className="mb-8">
         <div
@@ -144,7 +144,9 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Summary Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b">Summary</h2>
+        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
+          Summary
+        </h2>
         <div
           className="p-3 outline-none"
           contentEditable
@@ -157,7 +159,9 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Skills Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b">Skills</h2>
+        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
+          Skills
+        </h2>
         <div
           className="p-3 outline-none"
           contentEditable
@@ -170,7 +174,9 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Experience Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b">Experience</h2>
+        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
+          Experience
+        </h2>
         {editedResume.experience.map((exp, idx) => (
           <div
             key={idx}
@@ -222,7 +228,9 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Education Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b">Education</h2>
+        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
+          Education
+        </h2>
         {editedResume.education.map((edu, idx) => (
           <div
             key={idx}
