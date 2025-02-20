@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { FileEdit, Upload, Save, LoaderPinwheel } from 'lucide-react';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { JobDescriptionInput } from '@/components/job-input';
 import PDFEditor from '@/components/pdf-editor';
 import { isValidResumeObject } from '@/lib/validation';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
@@ -67,12 +69,17 @@ export default function Dashboard() {
     'none'
   );
   const [jobDescription, setJobDescription] = useState('');
-  const [editedResume, setEditedResume] = useState<ResumeContentObject | null>(
-    null
-  );
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+
+  // Use custom localStorage hook with validation
+  const [editedResume, setEditedResume, clearEditedResume] =
+    useLocalStorage<ResumeContentObject | null>(
+      `edited_resume_${id}`,
+      null,
+      isValidResumeObject
+    );
 
   // Configure React Query for resume data
   const {
@@ -83,57 +90,24 @@ export default function Dashboard() {
     queryKey: ['resume', id],
     queryFn: () => fetchResume(id as string),
     retry: 1,
-    staleTime: Infinity, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
   });
 
-  // Load edited resume from localStorage on mount
-  useEffect(() => {
-    if (id) {
-      const savedResume = localStorage.getItem(`edited_resume_${id}`);
-      if (savedResume) {
-        try {
-          const parsed = JSON.parse(savedResume);
-          // Validate the stored data
-          if (isValidResumeObject(parsed)) {
-            setEditedResume(parsed);
-          } else {
-            console.warn('Invalid resume data in localStorage');
-            localStorage.removeItem(`edited_resume_${id}`);
-          }
-        } catch (err) {
-          console.error('Failed to load saved resume:', err);
-          localStorage.removeItem(`edited_resume_${id}`);
-        }
-      }
-    }
-  }, [id]);
+  // Handle errors using useEffect
+  if (error) {
+    toast({
+      variant: 'destructive',
+      title: 'Error',
+      description: error.message,
+    });
+    router.push('/');
+  }
 
-  // Initialize editedResume when parsedObject changes (e.g., new file uploaded)
-  useEffect(() => {
-    if (resume?.parsedObject && !editedResume) {
-      setEditedResume(resume.parsedObject);
-    }
-  }, [resume?.parsedObject, editedResume]);
-
-  // Save edited resume to localStorage whenever it changes
-  useEffect(() => {
-    if (id && editedResume) {
-      localStorage.setItem(`edited_resume_${id}`, JSON.stringify(editedResume));
-    }
-  }, [id, editedResume]);
-
-  // Handle errors
-  useEffect(() => {
-    if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message,
-      });
-      router.push('/');
-    }
-  }, [error, toast, router]);
+  // Initialize editedResume when parsedObject changes
+  if (resume?.parsedObject && !editedResume) {
+    setEditedResume(resume.parsedObject);
+  }
 
   // Mutation for file uploads
   const { mutate: changeResume, isPending: isUploading } = useMutation({
@@ -147,7 +121,7 @@ export default function Dashboard() {
     onSuccess: (newResume) => {
       queryClient.setQueryData(['resume', id], newResume);
       setEditedResume(newResume.parsedObject || null);
-      localStorage.removeItem(`edited_resume_${id}`);
+      clearEditedResume();
       setActiveView('none');
       toast({
         title: 'Success',
@@ -169,7 +143,7 @@ export default function Dashboard() {
       saveEditorChanges(id as string, updates),
     onSuccess: (newResume) => {
       queryClient.setQueryData(['resume', id], newResume);
-      localStorage.removeItem(`edited_resume_${id}`);
+      clearEditedResume();
       toast({
         title: 'Success',
         description: 'Changes saved successfully',
@@ -199,17 +173,46 @@ export default function Dashboard() {
   const handleResetEdits = useCallback(() => {
     if (resume?.parsedObject) {
       setEditedResume(resume.parsedObject);
-      localStorage.removeItem(`edited_resume_${id}`);
+      clearEditedResume();
       toast({
         title: 'Reset',
         description: 'Resume edits have been reset to original',
       });
     }
-  }, [resume?.parsedObject, toast, id]);
+  }, [resume?.parsedObject, setEditedResume, clearEditedResume, toast]);
+
+  // Use custom keyboard shortcut hook for save (Ctrl+S or Cmd+S)
+  useKeyboardShortcut(
+    {
+      key: 's',
+      ctrlOrCmd: true,
+      preventDefault: true,
+    },
+    () => {
+      if (editedResume && !isSaving) {
+        handleSaveChanges();
+        toast({
+          title: 'Saving...',
+          description: 'Your changes are being saved',
+        });
+      } else if (isSaving) {
+        toast({
+          title: 'Please wait',
+          description: 'Already saving changes...',
+        });
+      } else {
+        toast({
+          title: 'Nothing to save',
+          description: 'No changes have been made to save',
+        });
+      }
+    },
+    true
+  );
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex items-center justify-center">
         <p>Loading resume...</p>
       </div>
     );
@@ -217,7 +220,7 @@ export default function Dashboard() {
 
   if (error || !resume) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex items-center justify-center">
         <p>Failed to load resume. Redirecting...</p>
       </div>
     );
