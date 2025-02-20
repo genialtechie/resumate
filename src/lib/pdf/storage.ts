@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { ResumeMetadata } from '@/types/resume';
+import { ResumeMetadata, ResumeContentObject } from '@/types/resume';
 import { PDFProcessor } from '@/lib/pdf/processor';
+import { ResumeParser } from '@/lib/parse-text';
 
 export class PDFHandler {
   private pdfProcessor: PDFProcessor;
@@ -14,6 +15,13 @@ export class PDFHandler {
     );
   }
 
+  private parseContent(textContent: string): ResumeContentObject {
+    const parser = new ResumeParser(textContent);
+    const parsed = parser.parse();
+    // Ensure the parsed object has an ID
+    return { ...parsed, id: crypto.randomUUID() };
+  }
+
   async saveResume(
     file: ArrayBuffer,
     fileName: string
@@ -21,6 +29,7 @@ export class PDFHandler {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const textContent = await this.pdfProcessor.extractText(file);
+    const parsedObject = this.parseContent(textContent);
 
     const { error: dbError } = await this.supabase.from('resumes').insert({
       id,
@@ -29,6 +38,7 @@ export class PDFHandler {
       updated_at: now,
       title: fileName.replace('.pdf', ''),
       parsed_content: textContent,
+      parsed_object: parsedObject,
     });
 
     if (dbError) throw dbError;
@@ -40,6 +50,7 @@ export class PDFHandler {
       updatedAt: now,
       title: fileName.replace('.pdf', ''),
       parsedContent: textContent,
+      parsedObject,
     };
   }
 
@@ -61,6 +72,7 @@ export class PDFHandler {
       updatedAt: metadata.updated_at,
       title: metadata.title,
       parsedContent: metadata.parsed_content,
+      parsedObject: metadata.parsed_object,
     };
   }
 
@@ -76,6 +88,7 @@ export class PDFHandler {
   ): Promise<ResumeMetadata> {
     const now = new Date().toISOString();
     const textContent = await this.pdfProcessor.extractText(file);
+    const parsedObject = this.parseContent(textContent);
 
     const { error: dbError } = await this.supabase
       .from('resumes')
@@ -84,18 +97,27 @@ export class PDFHandler {
         updated_at: now,
         title: fileName.replace('.pdf', ''),
         parsed_content: textContent,
+        parsed_object: parsedObject,
       })
       .eq('id', id);
 
     if (dbError) throw dbError;
 
+    // Get the existing record to maintain the correct createdAt time
+    const { data: existing } = await this.supabase
+      .from('resumes')
+      .select('created_at')
+      .eq('id', id)
+      .single();
+
     return {
       id,
       fileName,
-      createdAt: now, // We'll get this from the existing record
+      createdAt: existing?.created_at || now,
       updatedAt: now,
       title: fileName.replace('.pdf', ''),
       parsedContent: textContent,
+      parsedObject,
     };
   }
 }

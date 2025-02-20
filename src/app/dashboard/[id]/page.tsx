@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { FileEdit, Upload } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ResumeMetadata } from '@/types/resume';
+import { ResumeMetadata, ResumeContentObject } from '@/types/resume';
 import { UploadZone } from '@/components/upload';
 import { useToast } from '@/hooks/use-toast';
 import { JobDescriptionInput } from '@/components/job-input';
+import PDFEditor from '@/components/pdf-editor';
 
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
@@ -45,9 +46,34 @@ export default function Dashboard() {
     'none'
   );
   const [jobDescription, setJobDescription] = useState('');
+  const [editedResume, setEditedResume] = useState<ResumeContentObject | null>(
+    null
+  );
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+
+  // Load edited resume from localStorage on mount
+  useEffect(() => {
+    if (id) {
+      const savedResume = localStorage.getItem(`edited_resume_${id}`);
+      if (savedResume) {
+        try {
+          setEditedResume(JSON.parse(savedResume));
+        } catch (err) {
+          console.error('Failed to load saved resume:', err);
+          localStorage.removeItem(`edited_resume_${id}`);
+        }
+      }
+    }
+  }, [id]);
+
+  // Save edited resume to localStorage whenever it changes
+  useEffect(() => {
+    if (id && editedResume) {
+      localStorage.setItem(`edited_resume_${id}`, JSON.stringify(editedResume));
+    }
+  }, [id, editedResume]);
 
   const {
     data: resume,
@@ -57,7 +83,20 @@ export default function Dashboard() {
     queryKey: ['resume', id],
     queryFn: () => fetchResume(id as string),
     retry: 1,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
   });
+
+  // Initialize editedResume when parsedObject changes (e.g., new file uploaded)
+  useEffect(() => {
+    if (resume?.parsedObject) {
+      setEditedResume(resume.parsedObject);
+      // Clear localStorage when a new file is uploaded
+      if (id) {
+        localStorage.removeItem(`edited_resume_${id}`);
+      }
+    }
+  }, [resume?.parsedObject, id]);
 
   useEffect(() => {
     if (error) {
@@ -85,6 +124,10 @@ export default function Dashboard() {
         description: 'Resume updated successfully',
       });
       setActiveView('none');
+      // Clear localStorage when a new file is uploaded
+      if (id) {
+        localStorage.removeItem(`edited_resume_${id}`);
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -98,6 +141,21 @@ export default function Dashboard() {
   const toggleView = (view: 'editor' | 'upload') => {
     setActiveView((currentView) => (currentView === view ? 'none' : view));
   };
+
+  // Add reset functionality
+  const handleResetEdits = useCallback(() => {
+    if (resume?.parsedObject) {
+      setEditedResume(resume.parsedObject);
+      // Clear localStorage when resetting changes
+      if (id) {
+        localStorage.removeItem(`edited_resume_${id}`);
+      }
+      toast({
+        title: 'Reset',
+        description: 'Resume edits have been reset to original',
+      });
+    }
+  }, [resume?.parsedObject, toast, id]);
 
   if (isLoading) {
     return (
@@ -143,6 +201,15 @@ export default function Dashboard() {
             <FileEdit className="mr-2 h-4 w-4" />
             {activeView === 'editor' ? 'Hide Editor' : 'Edit Resume'}
           </Button>
+          {activeView === 'editor' && (
+            <Button
+              onClick={handleResetEdits}
+              variant="outline"
+              className="rounded-none hover:text-primary hover:border-primary"
+            >
+              Reset Changes
+            </Button>
+          )}
         </div>
 
         {activeView === 'upload' && (
@@ -155,16 +222,21 @@ export default function Dashboard() {
           </div>
         )}
 
-        {activeView === 'editor' && (
-          <div className="w-1/2">
-            {/* <PDFViewer resumeId={resume.id} /> */}
+        {activeView === 'editor' && resume?.parsedObject && editedResume && (
+          <div className="w-full">
+            <PDFEditor
+              editedResume={editedResume}
+              setEditedResume={setEditedResume}
+            />
           </div>
         )}
 
-        <JobDescriptionInput
-          jobDescription={jobDescription}
-          setJobDescription={setJobDescription}
-        />
+        <div className="mt-4">
+          <JobDescriptionInput
+            jobDescription={jobDescription}
+            setJobDescription={setJobDescription}
+          />
+        </div>
       </div>
     </div>
   );
