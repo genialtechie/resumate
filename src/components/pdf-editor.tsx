@@ -1,6 +1,28 @@
 'use client';
 import React, { useCallback } from 'react';
 import { ResumeContentObject } from '@/types/resume';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  handleFieldBlur as handleFieldBlurHelper,
+  handleContactBlur as handleContactBlurHelper,
+  handleSkillsBlur as handleSkillsBlurHelper,
+  handleExperienceBlur as handleExperienceBlurHelper,
+  handleExperienceDetailChange as handleExperienceDetailChangeHelper,
+  addExperienceDetail as addExperienceDetailHelper,
+  deleteExperienceDetail as deleteExperienceDetailHelper,
+  addExperienceEntry as addExperienceEntryHelper,
+  deleteExperienceEntry as deleteExperienceEntryHelper,
+  handleEducationBlur as handleEducationBlurHelper,
+  addEducationEntry as addEducationEntryHelper,
+  deleteEducationEntry as deleteEducationEntryHelper,
+} from '@/lib/editor-helpers';
 
 interface PDFEditorProps {
   editedResume: ResumeContentObject;
@@ -11,7 +33,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
   editedResume,
   setEditedResume,
 }) => {
-  // Generic handler for top-level string fields on blur
+  // Wrap helper functions with useCallback
   const handleFieldBlur = useCallback(
     (
       field: keyof Omit<
@@ -20,45 +42,25 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
       >,
       value: string
     ) => {
-      setEditedResume({
-        ...editedResume,
-        [field]: value,
-      });
+      handleFieldBlurHelper(editedResume, setEditedResume, field, value);
     },
     [editedResume, setEditedResume]
   );
 
-  // Handler for updating the contact info from a single editable block
   const handleContactBlur = useCallback(
     (value: string) => {
-      // Expect contact info in the format "email | phone | linkedin"
-      const [email = '', phone = '', linkedin = ''] = value
-        .split('|')
-        .map((s) => s.trim());
-      setEditedResume({
-        ...editedResume,
-        contact: { email, phone, linkedin },
-      });
+      handleContactBlurHelper(editedResume, setEditedResume, value);
     },
     [editedResume, setEditedResume]
   );
 
-  // Handler for updating skills on blur
   const handleSkillsBlur = useCallback(
     (value: string) => {
-      const skills = value
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setEditedResume({
-        ...editedResume,
-        skills,
-      });
+      handleSkillsBlurHelper(editedResume, setEditedResume, value);
     },
     [editedResume, setEditedResume]
   );
 
-  // For updating an experience entry
   const handleExperienceBlur = useCallback(
     (
       index: number,
@@ -68,37 +70,89 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
       >,
       value: string
     ) => {
-      const newExp = [...editedResume.experience];
-      newExp[index] = { ...newExp[index], [field]: value };
-      setEditedResume({ ...editedResume, experience: newExp });
+      handleExperienceBlurHelper(
+        editedResume,
+        setEditedResume,
+        index,
+        field,
+        value
+      );
     },
     [editedResume, setEditedResume]
   );
 
-  // For updating the details (multi-line) of an experience entry
-  const handleExperienceDetailsBlur = useCallback(
-    (index: number, value: string) => {
-      const newExp = [...editedResume.experience];
-      // Split the details by newlines
-      newExp[index].details = value
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setEditedResume({ ...editedResume, experience: newExp });
+  const handleExperienceDetailChange = useCallback(
+    (expIndex: number, detailIndex: number, value: string) => {
+      handleExperienceDetailChangeHelper(
+        editedResume,
+        setEditedResume,
+        expIndex,
+        detailIndex,
+        value
+      );
     },
     [editedResume, setEditedResume]
   );
 
-  // For updating an education entry
+  const addExperienceDetail = useCallback(
+    (expIndex: number, detailIndex: number) => {
+      addExperienceDetailHelper(
+        editedResume,
+        setEditedResume,
+        expIndex,
+        detailIndex
+      );
+    },
+    [editedResume, setEditedResume]
+  );
+
+  const deleteExperienceDetail = useCallback(
+    (expIndex: number, detailIndex: number) => {
+      deleteExperienceDetailHelper(
+        editedResume,
+        setEditedResume,
+        expIndex,
+        detailIndex
+      );
+    },
+    [editedResume, setEditedResume]
+  );
+
+  const addExperienceEntry = useCallback(() => {
+    addExperienceEntryHelper(editedResume, setEditedResume);
+  }, [editedResume, setEditedResume]);
+
+  const deleteExperienceEntry = useCallback(
+    (expIndex: number) => {
+      deleteExperienceEntryHelper(editedResume, setEditedResume, expIndex);
+    },
+    [editedResume, setEditedResume]
+  );
+
   const handleEducationBlur = useCallback(
     (
       index: number,
       field: keyof Exclude<ResumeContentObject['education'], undefined>[number],
       value: string
     ) => {
-      const newEdu = [...editedResume.education];
-      newEdu[index] = { ...newEdu[index], [field]: value };
-      setEditedResume({ ...editedResume, education: newEdu });
+      handleEducationBlurHelper(
+        editedResume,
+        setEditedResume,
+        index,
+        field,
+        value
+      );
+    },
+    [editedResume, setEditedResume]
+  );
+
+  const addEducationEntry = useCallback(() => {
+    addEducationEntryHelper(editedResume, setEditedResume);
+  }, [editedResume, setEditedResume]);
+
+  const deleteEducationEntry = useCallback(
+    (eduIndex: number) => {
+      deleteEducationEntryHelper(editedResume, setEditedResume, eduIndex);
     },
     [editedResume, setEditedResume]
   );
@@ -108,7 +162,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white border shadow-md font-serif">
+    <div className="max-w-3xl md:max-w-4xl mx-auto p-6 md:p-12 bg-white border shadow-md font-serif">
       {/* Header Section */}
       <div className="mb-8">
         <div
@@ -177,53 +231,191 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
         <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
           Experience
         </h2>
-        {editedResume.experience.map((exp, idx) => (
+        {editedResume.experience.length > 0 ? (
+          editedResume.experience.map((exp, expIdx) => (
+            <div
+              key={expIdx}
+              className="mb-6 p-3 relative group/entry"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-grow">
+                  <div
+                    className="font-bold text-lg outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    title="Company"
+                    onBlur={(e) =>
+                      handleExperienceBlur(
+                        expIdx,
+                        'company',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {exp.company}
+                  </div>
+                  <div
+                    className="italic text-base outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    title="Role"
+                    onBlur={(e) =>
+                      handleExperienceBlur(
+                        expIdx,
+                        'title',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {exp.title}
+                  </div>
+                  <div
+                    className="text-sm text-gray-600 outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    title="Dates"
+                    onBlur={(e) =>
+                      handleExperienceBlur(
+                        expIdx,
+                        'dates',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {exp.dates}
+                  </div>
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover/entry:opacity-100">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 hover:bg-gray-100"
+                          onClick={() => addExperienceEntry()}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-sans">Add experience below</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                          onClick={() => deleteExperienceEntry(expIdx)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-sans">Delete experience</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+              <div className="mt-2">
+                {exp.details.map((detail, detailIdx) => (
+                  <div
+                    key={`${expIdx}-${detailIdx}`}
+                    className="flex items-start group relative hover:bg-gray-50/50 rounded px-2 py-1"
+                  >
+                    <span className="mr-2 text-gray-500 select-none">•</span>
+                    <div
+                      className="outline-none flex-1 min-h-[1.5rem]"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) =>
+                        handleExperienceDetailChange(
+                          expIdx,
+                          detailIdx,
+                          e.currentTarget.innerText
+                        )
+                      }
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === 'Backspace' &&
+                          e.currentTarget.innerText.trim() === ''
+                        ) {
+                          e.preventDefault();
+                          handleExperienceDetailChange(expIdx, detailIdx, '');
+                        }
+                      }}
+                    >
+                      {detail}
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 absolute -right-14 top-1/2 -translate-y-1/2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="detail-button h-6 w-6 hover:bg-gray-100"
+                              onClick={() => {
+                                addExperienceDetail(expIdx, detailIdx);
+                              }}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-sans">Add bullet point below</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                              onClick={() =>
+                                deleteExperienceDetail(expIdx, detailIdx)
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-sans">Delete bullet point</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                ))}
+                {exp.details.length === 0 && (
+                  <div
+                    className="flex items-start px-2 py-1 text-gray-400 italic"
+                    onClick={() => addExperienceDetail(expIdx, -1)}
+                  >
+                    <span className="mr-2">•</span>
+                    Add details...
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
           <div
-            key={idx}
-            className="mb-6 p-3"
+            className="p-3 text-gray-400 italic cursor-pointer"
+            onClick={addExperienceEntry}
           >
-            <div
-              className="font-bold text-lg outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleExperienceBlur(idx, 'company', e.currentTarget.innerText)
-              }
-            >
-              {exp.company}
-            </div>
-            <div
-              className="italic text-base outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleExperienceBlur(idx, 'title', e.currentTarget.innerText)
-              }
-            >
-              {exp.title}
-            </div>
-            <div
-              className="text-sm text-gray-600 outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleExperienceBlur(idx, 'dates', e.currentTarget.innerText)
-              }
-            >
-              {exp.dates}
-            </div>
-            <div
-              className="mt-2 outline-none whitespace-pre-wrap"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleExperienceDetailsBlur(idx, e.currentTarget.innerText)
-              }
-            >
-              {exp.details.join('\n')}
-            </div>
+            Add experience...
           </div>
-        ))}
+        )}
       </div>
 
       {/* Education Section */}
@@ -231,57 +423,119 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
         <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
           Education
         </h2>
-        {editedResume.education.map((edu, idx) => (
+        {editedResume.education.length > 0 ? (
+          editedResume.education.map((edu, idx) => (
+            <div
+              key={idx}
+              className="mb-6 p-3 relative group/entry"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-grow">
+                  <div
+                    className="font-bold text-lg outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) =>
+                      handleEducationBlur(
+                        idx,
+                        'institution',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {edu.institution}
+                  </div>
+                  <div
+                    className="italic outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) =>
+                      handleEducationBlur(
+                        idx,
+                        'degree',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {edu.degree}
+                  </div>
+                  <div
+                    className="text-sm text-gray-600 outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) =>
+                      handleEducationBlur(
+                        idx,
+                        'dates',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {edu.dates}
+                  </div>
+                  <div
+                    className="text-sm text-gray-600 outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) =>
+                      handleEducationBlur(
+                        idx,
+                        'location',
+                        e.currentTarget.innerText
+                      )
+                    }
+                  >
+                    {edu.location}
+                  </div>
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover/entry:opacity-100">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 hover:bg-gray-100"
+                          onClick={() => addEducationEntry()}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-sans">Add education below</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                          onClick={() => deleteEducationEntry(idx)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-sans">Delete education</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
           <div
-            key={idx}
-            className="mb-6 p-3"
+            className="p-3 text-gray-400 italic cursor-pointer"
+            onClick={addEducationEntry}
           >
-            <div
-              className="font-bold text-lg outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleEducationBlur(
-                  idx,
-                  'institution',
-                  e.currentTarget.innerText
-                )
-              }
-            >
-              {edu.institution}
-            </div>
-            <div
-              className="italic outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleEducationBlur(idx, 'degree', e.currentTarget.innerText)
-              }
-            >
-              {edu.degree}
-            </div>
-            <div
-              className="text-sm text-gray-600 outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleEducationBlur(idx, 'dates', e.currentTarget.innerText)
-              }
-            >
-              {edu.dates}
-            </div>
-            <div
-              className="text-sm text-gray-600 outline-none"
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) =>
-                handleEducationBlur(idx, 'location', e.currentTarget.innerText)
-              }
-            >
-              {edu.location}
-            </div>
+            Add education...
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
