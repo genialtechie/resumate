@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { PDFHandler } from '@/lib/pdf/handler';
 
 export const runtime = 'nodejs';
@@ -6,8 +6,8 @@ export const runtime = 'nodejs';
 const handler = new PDFHandler();
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -20,8 +20,8 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -59,8 +59,8 @@ export async function PUT(
 }
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -77,8 +77,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
