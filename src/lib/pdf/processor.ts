@@ -20,10 +20,17 @@ export class PDFProcessor {
   private async initializeWorker() {
     if (this.initialized) return;
     const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-    pdfjs.GlobalWorkerOptions.workerSrc = path.join(
-      process.cwd(),
-      'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
-    );
+    if (process.env.NODE_ENV === 'development') {
+      pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+        process.cwd(),
+        'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
+      );
+    } else {
+      pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+        process.cwd(),
+        'public/pdf.worker.min.mjs'
+      );
+    }
     this.initialized = true;
   }
 
