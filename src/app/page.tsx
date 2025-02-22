@@ -54,7 +54,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen w-screen flex-col items-center justify-center gap-4 px-4">
       <h2 className="text-2xl font-semibold mb-4 font-mono">
-        Import from existing resume
+        Transform Your Career Journey
       </h2>
       <div className="w-3/5">
         <UploadZone onFileChange={setFile} />

@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { ResumeMetadata, ResumeContentObject } from '@/types';
 import { PDFProcessor } from '@/lib/pdf/processor';
-import { parseResume as parseLLM } from '@/lib/parser/parse-text-llm';
+import { parseResume as parseLLM } from '@/lib/llm/parse-text-llm';
 import { parseResume as parsePattern } from '@/lib/parser/parse-text';
 
 export class PDFHandler {
