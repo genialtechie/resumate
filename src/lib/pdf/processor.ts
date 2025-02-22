@@ -3,6 +3,7 @@ import {
   type PDFDocumentProxy,
 } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { TextItem } from 'pdfjs-dist/types/src/display/api';
+import path from 'path';
 
 export class PDFProcessor {
   private initialized: boolean = false;
@@ -19,8 +20,10 @@ export class PDFProcessor {
   private async initializeWorker() {
     if (this.initialized) return;
     const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-    pdfjs.GlobalWorkerOptions.workerSrc =
-      '../../../node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs';
+    pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+      process.cwd(),
+      'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
+    );
     this.initialized = true;
   }
 
