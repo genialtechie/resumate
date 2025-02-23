@@ -36,7 +36,8 @@ Output: Return a valid JSON object following the schema.`;
           email: content.contact?.email || 'N/A',
           phone: content.contact?.phone || 'N/A',
           ...(content.contact?.linkedin && {
-            linkedin: content.contact.linkedin,
+            linkedin:
+              content.contact.linkedin || 'https://www.linkedin.com/in/user',
           }),
           ...(content.contact?.website && { website: content.contact.website }),
         },
