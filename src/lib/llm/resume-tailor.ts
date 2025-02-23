@@ -19,7 +19,8 @@ const DEFAULT_OPTIONS: TailoringOptions = {
 export class ResumeTailor extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, {
-      temperature: 0.7,
+      temperature: 0.2,
+      model: 'google/gemini-flash-1.5-8b-exp',
       response_format: tailoringResponseFormat,
     });
   }
@@ -29,10 +30,45 @@ export class ResumeTailor extends BaseLLMService {
 
     if (!validationResult.success) {
       console.warn('Schema validation issues:', validationResult.error.errors);
-    }
 
-    if (!validationResult.data) {
-      throw new Error('Failed to generate valid tailoring response');
+      // Try to salvage what we can from the response
+      const content = response as Partial<TailoringResponse>;
+
+      // Create a default response structure
+      const defaultResponse: TailoringResponse = {
+        requirements: {
+          keyRequirements: [],
+          missingRequirements: [],
+          missingSkills: [],
+        },
+        suggestedUpdates: {
+          summary: content?.suggestedUpdates?.summary || '',
+          skills: content?.suggestedUpdates?.skills || [],
+          experience: content?.suggestedUpdates?.experience || [],
+        },
+      };
+
+      // Merge with any valid data from the response
+      const mergedResponse = {
+        requirements: {
+          keyRequirements: content?.requirements?.keyRequirements || [],
+          missingRequirements: content?.requirements?.missingRequirements || [],
+          missingSkills: content?.requirements?.missingSkills || [],
+        },
+        suggestedUpdates: {
+          ...defaultResponse.suggestedUpdates,
+          ...content?.suggestedUpdates,
+        },
+      };
+
+      // Only throw if keyRequirements is empty
+      if (mergedResponse.requirements.keyRequirements.length === 0) {
+        throw new Error(
+          'Failed to extract key requirements from job description'
+        );
+      }
+
+      return mergedResponse;
     }
 
     return validationResult.data;

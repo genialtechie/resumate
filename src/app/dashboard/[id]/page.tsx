@@ -23,6 +23,7 @@ import { isValidResumeObject } from '@/lib/validation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 import { ResumeTailor } from '@/components/resume-tailor';
+import { mergeResumeUpdates } from '@/lib/utils';
 
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
@@ -298,6 +299,29 @@ export default function Dashboard() {
     }
   }, [resume?.parsedObject, setEditedResume, clearEditedResume, toast]);
 
+  const handleApplyTailoredChanges = useCallback(() => {
+    if (!editedResume || !tailoringData?.tailoringResult?.suggestedUpdates)
+      return;
+
+    // Merge the suggested updates with the current resume
+    const updatedResume = mergeResumeUpdates(
+      editedResume,
+      tailoringData.tailoringResult.suggestedUpdates
+    );
+
+    // Update the edited resume
+    setEditedResume(updatedResume);
+
+    // Close the tailor sheet and open the editor
+    setShowTailorSheet(false);
+    setActiveView('editor');
+
+    toast({
+      title: 'Resume Updated',
+      description: 'Your resume has been tailored with the suggested changes',
+    });
+  }, [editedResume, tailoringData, setEditedResume, setActiveView, toast]);
+
   // Use custom keyboard shortcut hook for save (Ctrl+S or Cmd+S)
   useKeyboardShortcut(
     {
@@ -521,6 +545,7 @@ export default function Dashboard() {
           isOpen={showTailorSheet}
           onOpenChange={setShowTailorSheet}
           requirements={tailoringData?.tailoringResult?.requirements}
+          onGenerateResume={handleApplyTailoredChanges}
           isLoading={isAnalyzing}
         />
       </div>

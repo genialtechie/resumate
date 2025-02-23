@@ -44,8 +44,8 @@ export abstract class BaseLLMService {
           'HTTP-Referer':
             process.env.NEXT_PUBLIC_GITHUB_REPO ||
             'https://github.com/yourusername/resumate',
-          'X-Title': 'Resumate',
-          'User-Agent': 'Resumate/1.0.0',
+          'X-Title': 'qualifies',
+          'User-Agent': 'qualifies/1.0.0',
         },
         body: JSON.stringify({
           model: this.config.model,
@@ -76,11 +76,16 @@ export abstract class BaseLLMService {
       }
 
       let data: {
-        choices?: Array<{ message: { content: string } }>;
+        choices?: Array<{
+          message: { content: string };
+          finish_reason?: string;
+          native_finish_reason?: string;
+        }>;
         error?: { message: string };
       };
       try {
         data = JSON.parse(responseData);
+        console.log('data', data);
       } catch (error) {
         throw new LLMError('Failed to parse API response as JSON', {
           responseData,
@@ -95,18 +100,28 @@ export abstract class BaseLLMService {
         );
       }
 
-      if (!data.choices?.[0]?.message?.content) {
+      const choice = data.choices?.[0];
+      if (!choice?.message?.content) {
         throw new LLMError('Invalid response format from OpenRouter API', {
+          response: data,
+        });
+      }
+
+      // Check finish reason
+      const finishReason = choice.finish_reason || choice.native_finish_reason;
+      if (finishReason && finishReason !== 'stop' && finishReason !== 'STOP') {
+        throw new LLMError(`Response incomplete: ${finishReason}`, {
+          finish_reason: finishReason,
           response: data,
         });
       }
 
       let parsedContent: unknown;
       try {
-        parsedContent = JSON.parse(data.choices[0].message.content);
+        parsedContent = JSON.parse(choice.message.content);
       } catch (error) {
         throw new LLMError('Failed to parse LLM response as JSON', {
-          content: data.choices[0].message.content,
+          content: choice.message.content,
           error,
         });
       }

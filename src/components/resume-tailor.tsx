@@ -115,11 +115,10 @@ export function ResumeTailor({
         <SheetFooter className="flex-shrink-0 px-4 py-4 border-t">
           <Button
             onClick={onGenerateResume}
-            // disabled={!requirements}
-            disabled
+            disabled={!requirements || isLoading}
             className="ml-auto w-full sm:w-auto"
           >
-            Generate Resume
+            Tailor Resume
           </Button>
         </SheetFooter>
       </SheetContent>
