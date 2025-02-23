@@ -3,13 +3,22 @@
 import { useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { FileEdit, Upload, Save, LoaderPinwheel } from 'lucide-react';
+import {
+  FileEdit,
+  Upload,
+  Save,
+  LoaderPinwheel,
+  Wand2,
+  Pencil,
+  FileStack,
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResumeMetadata, ResumeContentObject } from '@/types/resume';
 import { UploadZone } from '@/components/upload';
 import { useToast } from '@/hooks/use-toast';
 import { JobDescriptionInput } from '@/components/job-input';
 import PDFEditor from '@/components/pdf-editor';
+import CoverLetterEditor from '@/components/cover-letter-editor';
 import { isValidResumeObject } from '@/lib/validation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
@@ -65,21 +74,27 @@ const saveEditorChanges = async (
 
 export default function Dashboard() {
   const { id } = useParams();
-  const [activeView, setActiveView] = useState<'none' | 'editor' | 'upload'>(
-    'none'
-  );
+  const [activeView, setActiveView] = useState<
+    'none' | 'editor' | 'upload' | 'cover-letter'
+  >('none');
   const [jobDescription, setJobDescription] = useState('');
+  const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
 
-  // Use custom localStorage hook with validation
+  // Use custom localStorage hooks
   const [editedResume, setEditedResume, clearEditedResume] =
     useLocalStorage<ResumeContentObject | null>(
       `edited_resume_${id}`,
       null,
       isValidResumeObject
     );
+
+  const [coverLetterContent, setCoverLetterContent] = useLocalStorage<string>(
+    `cover_letter_${id}`,
+    ''
+  );
 
   // Configure React Query for resume data
   const {
@@ -158,7 +173,54 @@ export default function Dashboard() {
     },
   });
 
-  const toggleView = (view: 'editor' | 'upload') => {
+  // Cover letter generation mutation
+  const { mutate: generateCoverLetter } = useMutation({
+    mutationFn: async () => {
+      if (!jobDescription) {
+        throw new Error('Please enter a job description first');
+      }
+
+      const response = await fetch(`/api/resume/${id}/cover-letter`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jobDescription,
+          tone: 'professional',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate cover letter');
+      }
+
+      return response.json();
+    },
+    onMutate: () => {
+      setIsGeneratingCoverLetter(true);
+    },
+    onSuccess: (data) => {
+      setCoverLetterContent(data.generated.content);
+      toast({
+        title: 'Success',
+        description: 'Cover letter generated successfully',
+      });
+      toggleView('cover-letter');
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to generate cover letter',
+      });
+    },
+    onSettled: () => {
+      setIsGeneratingCoverLetter(false);
+    },
+  });
+
+  const toggleView = (view: 'editor' | 'upload' | 'cover-letter') => {
     setActiveView((currentView) => (currentView === view ? 'none' : view));
   };
 
@@ -252,8 +314,29 @@ export default function Dashboard() {
             className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
           >
             <FileEdit className="mr-2 h-4 w-4" />
-            {activeView === 'editor' ? 'Hide Editor' : 'Edit Resume'}
+            {activeView === 'editor' ? 'Hide Editor' : 'Edit Document'}
           </Button>
+          {coverLetterContent && (
+            <Button
+              onClick={() => {
+                if (activeView === 'cover-letter') {
+                  toggleView('editor');
+                } else {
+                  toggleView('cover-letter');
+                }
+              }}
+              variant="outline"
+              title={
+                activeView === 'cover-letter'
+                  ? 'Show Resume'
+                  : 'Show Cover Letter'
+              }
+              className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+            >
+              <FileStack className="h-4 w-4" />
+            </Button>
+          )}
+          {/* Save and Reset Buttons */}
           {activeView === 'editor' && (
             <>
               <Button
@@ -305,6 +388,15 @@ export default function Dashboard() {
               />
             </div>
           )}
+
+          {activeView === 'cover-letter' && coverLetterContent && (
+            <div className="w-full animate-fadeIn">
+              <CoverLetterEditor
+                content={coverLetterContent}
+                onContentChange={setCoverLetterContent}
+              />
+            </div>
+          )}
         </div>
 
         <div className="mt-8 transition-all duration-500 ease-in-out transform">
@@ -312,6 +404,34 @@ export default function Dashboard() {
             jobDescription={jobDescription}
             setJobDescription={setJobDescription}
           />
+        </div>
+        <div className="mt-4 flex flex-row gap-4">
+          <Button
+            onClick={() => {
+              generateCoverLetter();
+            }}
+            disabled={isGeneratingCoverLetter || !jobDescription}
+            variant="outline"
+            className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+          >
+            <Wand2 className="mr-2 h-4 w-4" />
+            {isGeneratingCoverLetter
+              ? 'Generating...'
+              : 'Generate Cover Letter'}
+          </Button>
+          {/* Tailor Resume Button */}
+          <Button
+            onClick={() => {
+              toggleView('editor');
+            }}
+            variant="outline"
+            disabled={isGeneratingCoverLetter || !jobDescription}
+            className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+            title="Tailor Resume"
+          >
+            Tailor Resume
+            <Pencil className="ml-2 h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

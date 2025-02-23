@@ -53,3 +53,32 @@ export interface ResumeContentObject {
     location: string;
   }>;
 }
+
+export interface CoverLetter {
+  id: string;
+  resumeId: string;
+  jobDescription: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CoverLetterMetadata extends CoverLetter {
+  resume?: ResumeMetadata;
+}
+export interface CoverLetterInput {
+  resume: ResumeContentObject;
+  jobDescription: string;
+  tone?: 'professional' | 'enthusiastic' | 'confident' | 'humble';
+}
+
+export interface GeneratedCoverLetter {
+  content: string;
+  sections: {
+    opening: string;
+    body: string[];
+    closing: string;
+  };
+  tone: 'professional' | 'enthusiastic' | 'confident' | 'humble';
+  keyPoints: string[];
+}

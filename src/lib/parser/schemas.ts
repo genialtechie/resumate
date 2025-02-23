@@ -156,3 +156,69 @@ export const response_format = {
     },
   },
 };
+
+export const coverLetterSchema = z.object({
+  content: z.string().min(1),
+  sections: z.object({
+    opening: z.string(),
+    body: z.array(z.string()),
+    closing: z.string(),
+  }),
+  tone: z.enum(['professional', 'enthusiastic', 'confident', 'humble']),
+  keyPoints: z.array(z.string()),
+});
+
+export const coverLetterResponseFormat = {
+  type: 'json_schema',
+  json_schema: {
+    name: 'cover_letter',
+    strict: true,
+    schema: {
+      type: 'object',
+      properties: {
+        content: {
+          type: 'string',
+          description: 'The complete cover letter text',
+        },
+        sections: {
+          type: 'object',
+          description: 'Individual sections of the cover letter',
+          properties: {
+            opening: {
+              type: 'string',
+              description:
+                'Opening paragraph introducing yourself and your interest',
+            },
+            body: {
+              type: 'array',
+              description:
+                'Body paragraphs highlighting relevant experience and skills',
+              items: {
+                type: 'string',
+              },
+            },
+            closing: {
+              type: 'string',
+              description: 'Closing paragraph with call to action',
+            },
+          },
+          required: ['opening', 'body', 'closing'],
+        },
+        tone: {
+          type: 'string',
+          enum: ['professional', 'enthusiastic', 'confident', 'humble'],
+          description: 'The overall tone of the cover letter',
+        },
+        keyPoints: {
+          type: 'array',
+          description: 'Key points addressed in the cover letter',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+      required: ['content', 'sections', 'tone', 'keyPoints'],
+      additionalProperties: false,
+    },
+  },
+};
