@@ -99,7 +99,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-up">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-              Powerful Features for Your Job Search
+              GenAI for Your Job Search
             </h2>
             <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
               Everything you need to streamline your job application process and
@@ -111,7 +111,7 @@ export default function Home() {
             <FeatureCard
               icon={FileText}
               title="Resume Management"
-              description="Import from LinkedIn or PDF, with AI-powered optimization and keyword tuning."
+              description="Import your resume from PDF, with AI-powered optimization and keyword tuning."
             />
             <FeatureCard
               icon={Zap}
