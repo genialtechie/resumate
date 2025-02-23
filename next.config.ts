@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverRuntimeConfig: {
+    maxDuration: 60, // This sets max duration to 60 seconds
+  },
 };
 
 export default nextConfig;

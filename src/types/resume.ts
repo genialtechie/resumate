@@ -82,3 +82,35 @@ export interface GeneratedCoverLetter {
   tone: 'professional' | 'enthusiastic' | 'confident' | 'humble';
   keyPoints: string[];
 }
+
+export interface TailoredRequirements {
+  keyRequirements: string[];
+  missingRequirements: string[];
+  missingSkills: string[];
+}
+
+export interface TailoringResponse {
+  requirements: TailoredRequirements;
+  suggestedUpdates: {
+    summary?: string;
+    skills?: string[];
+    experience?: Array<{
+      company: string;
+      title: string;
+      dates: string;
+      details: string[];
+    }>;
+  };
+}
+
+export interface TailoringOptions {
+  focusAreas?: ('summary' | 'skills' | 'experience')[];
+  maxSuggestedSkills?: number;
+  preserveExperience?: boolean;
+}
+
+export interface TailoringInput {
+  resume: ResumeContentObject;
+  jobDescription: string;
+  options: TailoringOptions;
+}

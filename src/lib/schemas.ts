@@ -222,3 +222,69 @@ export const coverLetterResponseFormat = {
     },
   },
 };
+
+export const tailoringResponseFormat = {
+  type: 'json_object',
+  schema: {
+    type: 'object',
+    properties: {
+      requirements: {
+        type: 'object',
+        properties: {
+          keyRequirements: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Key requirements extracted from the job description',
+          },
+          missingRequirements: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Requirements from the job description that are not evident in the resume',
+          },
+          missingSkills: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Specific skills mentioned in the job description that are missing from the resume',
+          },
+        },
+        required: ['keyRequirements', 'missingRequirements', 'missingSkills'],
+      },
+      suggestedUpdates: {
+        type: 'object',
+        properties: {
+          summary: {
+            type: 'string',
+            description:
+              'Suggested updated summary that better aligns with the job description',
+          },
+          skills: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Suggested updated skills section',
+          },
+          experience: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                company: { type: 'string' },
+                title: { type: 'string' },
+                dates: { type: 'string' },
+                details: {
+                  type: 'array',
+                  items: { type: 'string' },
+                },
+              },
+              required: ['company', 'title', 'dates', 'details'],
+            },
+            description:
+              'Suggested updates to experience bullet points to better highlight relevant experience',
+          },
+        },
+      },
+    },
+    required: ['requirements', 'suggestedUpdates'],
+  },
+};

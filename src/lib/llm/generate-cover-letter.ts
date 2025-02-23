@@ -4,10 +4,7 @@ import {
   CoverLetterInput,
   GeneratedCoverLetter,
 } from '@/types';
-import {
-  coverLetterSchema,
-  coverLetterResponseFormat,
-} from '@/lib/parser/schemas';
+import { coverLetterSchema, coverLetterResponseFormat } from '@/lib/schemas';
 
 export class CoverLetterGenerator extends BaseLLMService {
   constructor(apiKey: string) {

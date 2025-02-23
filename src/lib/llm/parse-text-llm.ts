@@ -1,5 +1,5 @@
 import { ResumeContentObject } from '@/types';
-import { resumeSchema, response_format } from '@/lib/parser/schemas';
+import { resumeSchema, response_format } from '@/lib/schemas';
 import { BaseLLMService } from '@/lib/llm/base-llm';
 
 export class LLMResumeParser extends BaseLLMService {
