@@ -85,7 +85,6 @@ export abstract class BaseLLMService {
       };
       try {
         data = JSON.parse(responseData);
-        console.log('data', data);
       } catch (error) {
         throw new LLMError('Failed to parse API response as JSON', {
           responseData,
