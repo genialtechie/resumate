@@ -5,7 +5,10 @@ import {
   TailoringResponse,
   TailoringInput,
 } from '@/types/resume';
-import { tailoringResponseFormat } from '@/lib/schemas';
+import {
+  tailoringResponseFormat,
+  tailoringResponseSchema,
+} from '@/lib/schemas';
 
 const DEFAULT_OPTIONS: TailoringOptions = {
   focusAreas: ['summary', 'skills', 'experience'],
@@ -22,47 +25,17 @@ export class ResumeTailor extends BaseLLMService {
   }
 
   protected validateResponse(response: unknown): TailoringResponse {
-    if (!response || typeof response !== 'object') {
-      throw new Error('Invalid response format');
+    const validationResult = tailoringResponseSchema.safeParse(response);
+
+    if (!validationResult.success) {
+      console.warn('Schema validation issues:', validationResult.error.errors);
     }
 
-    const result = response as TailoringResponse;
-
-    // Validate requirements
-    if (
-      !result.requirements?.keyRequirements?.length ||
-      !Array.isArray(result.requirements.keyRequirements) ||
-      !result.requirements?.missingRequirements?.length ||
-      !Array.isArray(result.requirements.missingRequirements) ||
-      !result.requirements?.missingSkills?.length ||
-      !Array.isArray(result.requirements.missingSkills)
-    ) {
-      throw new Error('Invalid requirements format in response');
+    if (!validationResult.data) {
+      throw new Error('Failed to generate valid tailoring response');
     }
 
-    // Validate suggestedUpdates if present
-    if (result.suggestedUpdates) {
-      if (
-        result.suggestedUpdates.summary &&
-        typeof result.suggestedUpdates.summary !== 'string'
-      ) {
-        throw new Error('Invalid summary format in suggested updates');
-      }
-      if (
-        result.suggestedUpdates.skills &&
-        !Array.isArray(result.suggestedUpdates.skills)
-      ) {
-        throw new Error('Invalid skills format in suggested updates');
-      }
-      if (
-        result.suggestedUpdates.experience &&
-        !Array.isArray(result.suggestedUpdates.experience)
-      ) {
-        throw new Error('Invalid experience format in suggested updates');
-      }
-    }
-
-    return result;
+    return validationResult.data;
   }
 
   protected buildPrompt(input: unknown): string {
@@ -97,7 +70,7 @@ ${
     : ''
 }
 
-Return a JSON object with your analysis and suggestions following the specified schema.`;
+Return a valid JSON object following the specified schema.`;
   }
 
   public async tailorResume(

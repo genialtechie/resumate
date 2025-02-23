@@ -22,6 +22,7 @@ import CoverLetterEditor from '@/components/cover-letter-editor';
 import { isValidResumeObject } from '@/lib/validation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
+import { ResumeTailor } from '@/components/resume-tailor';
 
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
@@ -78,10 +79,10 @@ export default function Dashboard() {
     'none' | 'editor' | 'upload' | 'cover-letter'
   >('none');
   const [jobDescription, setJobDescription] = useState('');
-  const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+  const [showTailorSheet, setShowTailorSheet] = useState(false);
 
   // Use custom localStorage hooks
   const [editedResume, setEditedResume, clearEditedResume] =
@@ -174,7 +175,58 @@ export default function Dashboard() {
   });
 
   // Cover letter generation mutation
-  const { mutate: generateCoverLetter } = useMutation({
+  const { mutate: generateCoverLetter, isPending: isGeneratingCoverLetter } =
+    useMutation({
+      mutationFn: async () => {
+        if (!jobDescription) {
+          throw new Error('Please enter a job description first');
+        }
+
+        if (!editedResume && !resume?.parsedObject) {
+          throw new Error('No resume data available');
+        }
+
+        const response = await fetch(`/api/resume/${id}/cover-letter`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            jobDescription,
+            tone: 'professional',
+            resumeObject: editedResume || resume?.parsedObject,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate cover letter');
+        }
+
+        return response.json();
+      },
+      onSuccess: (data) => {
+        setCoverLetterContent(data.generated.content);
+        toast({
+          title: 'Success',
+          description: 'Cover letter generated successfully',
+        });
+        toggleView('cover-letter');
+      },
+      onError: (error: Error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: error.message || 'Failed to generate cover letter',
+        });
+      },
+    });
+
+  // Add tailoring mutation
+  const {
+    mutate: getTailoringAnalysis,
+    isPending: isAnalyzing,
+    data: tailoringData,
+  } = useMutation({
     mutationFn: async () => {
       if (!jobDescription) {
         throw new Error('Please enter a job description first');
@@ -184,44 +236,42 @@ export default function Dashboard() {
         throw new Error('No resume data available');
       }
 
-      const response = await fetch(`/api/resume/${id}/cover-letter`, {
+      const response = await fetch(`/api/resume/${id}/tailor`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           jobDescription,
-          tone: 'professional',
           resumeObject: editedResume || resume?.parsedObject,
+          options: {
+            focusAreas: ['summary', 'skills', 'experience'],
+            maxSuggestedSkills: 10,
+          },
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate cover letter');
+        throw new Error('Failed to analyze resume');
       }
 
       return response.json();
     },
-    onMutate: () => {
-      setIsGeneratingCoverLetter(true);
-    },
     onSuccess: (data) => {
-      setCoverLetterContent(data.generated.content);
+      queryClient.setQueryData(['tailoringResult', id], data);
+
+      setShowTailorSheet(true);
       toast({
-        title: 'Success',
-        description: 'Cover letter generated successfully',
+        title: 'Analysis Complete',
+        description: 'Review the suggested changes to tailor your resume',
       });
-      toggleView('cover-letter');
     },
     onError: (error: Error) => {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error.message || 'Failed to generate cover letter',
+        description: error.message || 'Failed to analyze resume',
       });
-    },
-    onSettled: () => {
-      setIsGeneratingCoverLetter(false);
     },
   });
 
@@ -319,28 +369,31 @@ export default function Dashboard() {
             className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
           >
             <FileEdit className="mr-2 h-4 w-4" />
-            {activeView === 'editor' ? 'Hide Editor' : 'Edit Document'}
+            {activeView === 'editor' || activeView === 'cover-letter'
+              ? 'Hide Editor'
+              : 'Edit Document'}
           </Button>
-          {coverLetterContent && (
-            <Button
-              onClick={() => {
-                if (activeView === 'cover-letter') {
-                  toggleView('editor');
-                } else {
-                  toggleView('cover-letter');
+          {coverLetterContent &&
+            (activeView === 'editor' || activeView === 'cover-letter') && (
+              <Button
+                onClick={() => {
+                  if (activeView === 'cover-letter') {
+                    toggleView('editor');
+                  } else {
+                    toggleView('cover-letter');
+                  }
+                }}
+                variant="outline"
+                title={
+                  activeView === 'cover-letter'
+                    ? 'Show Resume'
+                    : 'Show Cover Letter'
                 }
-              }}
-              variant="outline"
-              title={
-                activeView === 'cover-letter'
-                  ? 'Show Resume'
-                  : 'Show Cover Letter'
-              }
-              className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
-            >
-              <FileStack className="h-4 w-4" />
-            </Button>
-          )}
+                className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+              >
+                <FileStack className="h-4 w-4" />
+              </Button>
+            )}
           {/* Save and Reset Buttons */}
           {activeView === 'editor' && (
             <>
@@ -411,6 +464,7 @@ export default function Dashboard() {
           />
         </div>
         <div className="mt-4 flex flex-row gap-4">
+          {/* Generate Cover Letter Button */}
           <Button
             onClick={() => {
               generateCoverLetter();
@@ -420,7 +474,8 @@ export default function Dashboard() {
               !jobDescription ||
               isSaving ||
               isUploading ||
-              isLoading
+              isLoading ||
+              isAnalyzing
             }
             variant="outline"
             className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
@@ -433,17 +488,41 @@ export default function Dashboard() {
           {/* Tailor Resume Button */}
           <Button
             onClick={() => {
-              toggleView('editor');
+              getTailoringAnalysis();
             }}
             variant="outline"
-            disabled={isGeneratingCoverLetter || !jobDescription}
+            disabled={
+              isGeneratingCoverLetter ||
+              !jobDescription ||
+              isSaving ||
+              isUploading ||
+              isLoading ||
+              isAnalyzing
+            }
             className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
             title="Tailor Resume"
           >
-            Tailor Resume
-            <Pencil className="ml-2 h-4 w-4" />
+            {isAnalyzing ? (
+              <>
+                <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                Tailor Resume
+                <Pencil className="ml-2 h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
+
+        {/* Add ResumeTailor component */}
+        <ResumeTailor
+          isOpen={showTailorSheet}
+          onOpenChange={setShowTailorSheet}
+          requirements={tailoringData?.tailoringResult?.requirements}
+          isLoading={isAnalyzing}
+        />
       </div>
     </div>
   );
