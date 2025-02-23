@@ -37,7 +37,7 @@ export async function POST(
 ) {
   const { id } = await params;
   try {
-    const { jobDescription, tone } = await request.json();
+    const { jobDescription, tone, resumeObject } = await request.json();
 
     if (!jobDescription) {
       return NextResponse.json(
@@ -46,18 +46,16 @@ export async function POST(
       );
     }
 
-    // Get the resume data
-    const resume = await handler.getResume(id);
-    if (!resume.parsedObject) {
+    if (!resumeObject) {
       return NextResponse.json(
-        { error: 'Resume has no parsed content' },
+        { error: 'Resume object is required' },
         { status: 400 }
       );
     }
 
     // Generate the cover letter
     const generated = await generateCoverLetter(
-      resume.parsedObject,
+      resumeObject,
       jobDescription,
       process.env.OPENROUTER_API_KEY!,
       tone

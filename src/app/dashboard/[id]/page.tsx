@@ -180,6 +180,10 @@ export default function Dashboard() {
         throw new Error('Please enter a job description first');
       }
 
+      if (!editedResume && !resume?.parsedObject) {
+        throw new Error('No resume data available');
+      }
+
       const response = await fetch(`/api/resume/${id}/cover-letter`, {
         method: 'POST',
         headers: {
@@ -188,6 +192,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           jobDescription,
           tone: 'professional',
+          resumeObject: editedResume || resume?.parsedObject,
         }),
       });
 
@@ -410,7 +415,13 @@ export default function Dashboard() {
             onClick={() => {
               generateCoverLetter();
             }}
-            disabled={isGeneratingCoverLetter || !jobDescription}
+            disabled={
+              isGeneratingCoverLetter ||
+              !jobDescription ||
+              isSaving ||
+              isUploading ||
+              isLoading
+            }
             variant="outline"
             className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
           >
