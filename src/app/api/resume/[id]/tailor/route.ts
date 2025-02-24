@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { ResumeTailor } from '@/lib/llm/resume-tailor';
-import { ResumeContentObject } from '@/types/resume';
+import { ResumeContentObject } from '@/types';
 
 export const runtime = 'nodejs';
 

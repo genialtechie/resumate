@@ -11,9 +11,11 @@ import {
   Wand2,
   Pencil,
   FileStack,
+  Download,
+  ListRestart,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ResumeMetadata, ResumeContentObject } from '@/types/resume';
+import { ResumeMetadata, ResumeContentObject } from '@/types';
 import { UploadZone } from '@/components/upload';
 import { useToast } from '@/hooks/use-toast';
 import { JobDescriptionInput } from '@/components/job-input';
@@ -25,6 +27,7 @@ import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 import { ResumeTailor } from '@/components/resume-tailor';
 import { mergeResumeUpdates } from '@/lib/utils';
 
+// Fetch the resume metadata from the database
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
   if (!response.ok) {
@@ -34,6 +37,7 @@ const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   return response.json();
 };
 
+// Update the resume with a new file
 const updateResume = async (
   id: string,
   file: File
@@ -276,6 +280,44 @@ export default function Dashboard() {
     },
   });
 
+  // Add download PDF mutation
+  const { mutate: downloadPDF, isPending: isDownloading } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/resume/${id}/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: editedResume,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resume-${editedResume?.name.split(' ')[0] || id}-${
+        new Date().toISOString().split('T')[0]
+      }.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to download PDF',
+      });
+    },
+  });
+
   const toggleView = (view: 'editor' | 'upload' | 'cover-letter') => {
     setActiveView((currentView) => (currentView === view ? 'none' : view));
   };
@@ -299,6 +341,7 @@ export default function Dashboard() {
     }
   }, [resume?.parsedObject, setEditedResume, clearEditedResume, toast]);
 
+  // Apply the tailored changes to the resume
   const handleApplyTailoredChanges = useCallback(() => {
     if (!editedResume || !tailoringData?.tailoringResult?.suggestedUpdates)
       return;
@@ -341,7 +384,7 @@ export default function Dashboard() {
           title: 'Please wait',
           description: 'Already saving changes...',
         });
-      } else {
+      } else if (editedResume === resume?.parsedObject) {
         toast({
           title: 'Nothing to save',
           description: 'No changes have been made to save',
@@ -370,6 +413,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col items-center w-full">
       <div className="w-full md:w-3/5 p-4">
+        {/* Change Resume and Edit Document controls */}
         <div className="flex gap-4 mb-4">
           <Button
             onClick={() => toggleView('upload')}
@@ -418,15 +462,31 @@ export default function Dashboard() {
                 <FileStack className="h-4 w-4" />
               </Button>
             )}
+          <Button
+            onClick={() => downloadPDF()}
+            disabled={isDownloading || !resume?.parsedObject}
+            variant="outline"
+            className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+            title="Download PDF"
+          >
+            {isDownloading ? (
+              <div className="animate-spin">
+                <LoaderPinwheel className="h-4 w-4" />
+              </div>
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+          </Button>
           {/* Save and Reset Buttons */}
           {activeView === 'editor' && (
             <>
               <Button
                 onClick={handleResetEdits}
                 variant="outline"
+                title="Reset Changes"
                 className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
               >
-                Reset Changes
+                <ListRestart className="h-4 w-4" />
               </Button>
               <Button
                 onClick={handleSaveChanges}
@@ -447,6 +507,7 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* Document Editor */}
         <div
           className={`transition-all duration-500 ease-in-out transform ${
             activeView === 'none' ? 'animate-fadeOut' : 'animate-fadeIn'
@@ -481,6 +542,7 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* Job Description Input */}
         <div className="mt-8 transition-all duration-500 ease-in-out transform">
           <JobDescriptionInput
             jobDescription={jobDescription}
@@ -540,7 +602,7 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Add ResumeTailor component */}
+        {/* Resume Tailoring Sheet */}
         <ResumeTailor
           isOpen={showTailorSheet}
           onOpenChange={setShowTailorSheet}

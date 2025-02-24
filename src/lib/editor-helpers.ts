@@ -1,4 +1,4 @@
-import { ResumeContentObject } from '@/types/resume';
+import { ResumeContentObject } from '@/types';
 
 // Generic handler for top-level string fields
 export const handleFieldBlur = (

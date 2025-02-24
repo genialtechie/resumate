@@ -1,10 +1,10 @@
-import { ResumeContentObject } from '@/types/resume';
-import { BaseLLMService } from '@/lib/llm/base-llm';
 import {
+  ResumeContentObject,
   TailoringOptions,
   TailoringResponse,
   TailoringInput,
-} from '@/types/resume';
+} from '@/types';
+import { BaseLLMService } from '@/lib/llm/base-llm';
 import {
   tailoringResponseFormat,
   tailoringResponseSchema,

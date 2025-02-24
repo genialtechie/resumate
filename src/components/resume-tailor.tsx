@@ -8,7 +8,7 @@ import {
   SheetFooter,
 } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { TailoredRequirements } from '@/types/resume';
+import { TailoredRequirements } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

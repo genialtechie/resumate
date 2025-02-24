@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback } from 'react';
-import { ResumeContentObject } from '@/types/resume';
+import { ResumeContentObject } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import {
@@ -285,7 +285,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     {exp.dates}
                   </div>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover/entry:opacity-100">
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -353,7 +353,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     >
                       {detail}
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 absolute -right-14 top-1/2 -translate-y-1/2">
+                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 absolute -right-6 sm:-right-14 top-1/2 -translate-y-1/2">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -488,7 +488,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     {edu.location}
                   </div>
                 </div>
-                <div className="flex gap-1 opacity-0 group-hover/entry:opacity-100">
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

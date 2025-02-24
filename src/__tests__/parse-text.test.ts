@@ -1,5 +1,5 @@
-import { parseResume } from '../lib/parser/parse-text';
-import { ResumeContentObject } from '@/types/resume';
+import { parseResume } from '@/lib/parser/parse-text';
+import { ResumeContentObject } from '@/types';
 
 describe('parseResume', () => {
   describe('Basic Parsing', () => {

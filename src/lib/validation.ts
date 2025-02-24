@@ -1,4 +1,4 @@
-import { ResumeContentObject } from '@/types/resume';
+import { ResumeContentObject } from '@/types';
 
 export function isValidResumeObject(obj: unknown): obj is ResumeContentObject {
   if (!obj || typeof obj !== 'object') return false;
