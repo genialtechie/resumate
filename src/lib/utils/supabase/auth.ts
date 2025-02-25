@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/utils/supabase/server';
+import { createClient } from '@/lib/utils/supabase/client';
 
 // Efficient way to get the user ID
 export async function getUserIdFromRequest(): Promise<string> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
