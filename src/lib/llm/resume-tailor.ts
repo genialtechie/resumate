@@ -8,7 +8,7 @@ import { BaseLLMService } from '@/lib/llm/base-llm';
 import {
   tailoringResponseFormat,
   tailoringResponseSchema,
-} from '@/lib/schemas';
+} from '@/lib/utils/schemas';
 
 const DEFAULT_OPTIONS: TailoringOptions = {
   focusAreas: ['summary', 'skills', 'experience'],

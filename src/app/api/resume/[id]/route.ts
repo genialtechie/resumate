@@ -1,9 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { PDFHandler } from '@/lib/pdf/handler';
+import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
 
 export const runtime = 'nodejs';
-
-const handler = new PDFHandler();
 
 export async function GET(
   request: NextRequest,
@@ -11,10 +10,18 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const metadata = await handler.getResume(id);
+    const userId = await getUserIdFromRequest();
+
+    const handler = new PDFHandler();
+    const metadata = await handler.getResume(id, userId);
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
     console.error('Error fetching resume:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
   }
 }
@@ -25,6 +32,8 @@ export async function PUT(
 ) {
   const { id } = await params;
   try {
+    const userId = await getUserIdFromRequest();
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -41,11 +50,16 @@ export async function PUT(
     }
 
     const buffer = await file.arrayBuffer();
-    const metadata = await handler.updateResume(id, buffer, file.name);
+    const handler = new PDFHandler();
+    const metadata = await handler.updateResume(id, buffer, file.name, userId);
 
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
     console.error('Error updating resume:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (error instanceof Error && error.message === 'Resume not found') {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
@@ -64,11 +78,19 @@ export async function PATCH(
 ) {
   const { id } = await params;
   try {
+    const userId = await getUserIdFromRequest();
+
     const updates = await request.json();
-    const metadata = await handler.updateParsedObject(id, updates);
+    const handler = new PDFHandler();
+    const metadata = await handler.updateParsedObject(id, updates, userId);
     return NextResponse.json(metadata, { status: 200 });
   } catch (error) {
     console.error('Error updating resume:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to update resume' },
       { status: 500 }
@@ -82,13 +104,21 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    await handler.deleteResume(id);
+    const userId = await getUserIdFromRequest();
+
+    const handler = new PDFHandler();
+    await handler.deleteResume(id, userId);
     return NextResponse.json(
       { message: 'Resume deleted successfully' },
       { status: 200 }
     );
   } catch (error) {
     console.error('Error deleting resume:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to delete resume' },
       { status: 500 }

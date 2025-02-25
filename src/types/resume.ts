@@ -6,7 +6,7 @@ export interface ResumeMetadata {
   title: string;
   parsedContent?: string;
   parsedObject?: ResumeContentObject;
-  tags?: string[];
+  userId: string;
 }
 
 export interface StorageConfig {
@@ -61,6 +61,7 @@ export interface CoverLetter {
   content: string;
   createdAt: string;
   updatedAt: string;
+  userId: string;
 }
 
 export interface CoverLetterMetadata extends CoverLetter {

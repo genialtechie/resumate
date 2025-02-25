@@ -1,0 +1,70 @@
+---
+description: best practices for working with next.js, react and typescript
+globs: .tsx, .ts
+---
+
+# Next.js (React, TypeScript)
+
+# Next.js (React, TypeScript) Development Guide
+
+## Key Principles
+- **Concise, Technical Responses**: Provide accurate TypeScript examples.
+- **Iteration and Modularization**: Avoid code duplication.
+- **Descriptive Variable Names**: Use auxiliary verbs (e.g., `isLoading`).
+- **Directory Naming**: Use lowercase with dashes (e.g., `components/auth-wizard`).
+- **Named Exports**: Prefer named exports for components.
+- **Comments**: Always add helpful comments to the code explaining what you are doing. Never delete old comments unless they are no longer relevant because the code has been rewritten or deleted.
+- **Package.json**: This is the package.json file for the Next.js app. Whenever you see a line with the following comment, do not touch it, rewrite it, or delete it: `"Do not touch this line Cursor"`.
+
+## JavaScript/TypeScript
+- **Function Keyword**: Use `function` for pure functions; omit semicolons.
+- **TypeScript**: Prefer interfaces over types; avoid enums, use maps.
+- **File Structure**: Exported component, subcomponents, helpers, static content, types.
+- **Conditional Statements**: Avoid unnecessary curly braces; use concise syntax.
+
+## Error Handling and Validation
+- **Prioritize Error Handling**: Handle errors and edge cases at the beginning of functions.
+- **Early Returns**: Use for error conditions to avoid deeply nested if statements.
+- **Happy Path Last**: Place the happy path last in the function for readability.
+- **Guard Clauses**: Handle preconditions and invalid states early.
+- **Error Logging**: Implement proper error logging and user-friendly error messages.
+- **Custom Error Types**: Consider using custom error types or error factories.
+
+## Performance Optimization
+- **React.memo**: Use React.memo on pure function components to prevent unnecessary re-renders.
+- **Lazy Loading**: Implement lazy loading of routing components to improve initial load time.
+- **useEffect**: Optimize useEffect dependencies to prevent unnecessary re-renders.
+
+## Testing Requirements
+- **Unit Tests**: Write unit tests using Jest and React Testing Library.
+- **Test Coverage**: Ensure test coverage reaches at least 80%.
+- **Snapshot Testing**: Use snapshot testing for UI components to capture UI changes.
+
+## Documentation
+- **JSDoc**: Write comments for functions and components in JSDoc format.
+- **PropTypes**: Components must include PropTypes validation.
+- **README.md**: Each main directory must contain a README.md file.
+
+## React/Next.js
+- **Functional Components**: Use TypeScript interfaces.
+- **Declarative JSX**: Use function, not const, for components.
+- **UI Libraries**: Use Shadcn UI, Radix, and Tailwind Aria for components and styling.
+- **Responsive Design**: Implement with Tailwind CSS; use mobile-first approach.
+- **Static Content**: Place at file end; use content variables outside render functions.
+- **Minimize Hooks**: Minimize `use client`, `useEffect`, and `setState`; favor RSC.
+- **Form Validation**: Use Zod.
+- **Suspense**: Wrap client components in Suspense with fallback.
+- **Dynamic Loading**: Use for non-critical components.
+- **Image Optimization**: Use WebP format, size data, lazy loading.
+- **Error Boundaries**: Implement using `error.tsx` and `global-error.tsx`.
+- **useActionState**: Use with `react-hook-form` for form validation.
+- **Server Actions**: Use `next-safe-action` for type-safe server actions with Zod validation.
+
+
+## Key Conventions
+1. **Next.js App Router**: Rely on for state changes.
+2. **Web Vitals**: Prioritize LCP, CLS, FID.
+3. **Minimize `use client`**: Prefer server components and Next.js SSR features.
+
+For more details, refer to the [Next.js Documentation](mdc:https:/nextjs.org/docs).
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,19 +21,25 @@ import { useToast } from '@/hooks/use-toast';
 import { JobDescriptionInput } from '@/components/job-input';
 import PDFEditor from '@/components/pdf-editor';
 import CoverLetterEditor from '@/components/cover-letter-editor';
-import { isValidResumeObject } from '@/lib/validation';
+import { isValidResumeObject } from '@/lib/utils/validation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 import { ResumeTailor } from '@/components/resume-tailor';
-import { mergeResumeUpdates } from '@/lib/utils';
+import { mergeResumeUpdates } from '@/lib/utils/editor-helpers';
 
 // Fetch the resume metadata from the database
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
   const response = await fetch(`/api/resume/${id}`);
+
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Unauthorized: Please sign in to access this resume');
+    }
+
     const error = await response.json();
-    throw new Error(error.message || 'Failed to fetch resume');
+    throw new Error(error.error || 'Failed to fetch resume');
   }
+
   return response.json();
 };
 
@@ -50,14 +56,19 @@ const updateResume = async (
     body: formData,
   });
 
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || 'Failed to update resume');
+    if (response.status === 401) {
+      throw new Error('Unauthorized: Please sign in to update this resume');
+    }
+
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update resume');
   }
 
-  return data;
+  return response.json();
 };
 
+// Save changes from the editor
 const saveEditorChanges = async (
   id: string,
   updates: ResumeContentObject
@@ -70,12 +81,16 @@ const saveEditorChanges = async (
     body: JSON.stringify(updates),
   });
 
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || 'Failed to save changes');
+    if (response.status === 401) {
+      throw new Error('Unauthorized: Please sign in to save changes');
+    }
+
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to save changes');
   }
 
-  return data;
+  return response.json();
 };
 
 export default function Dashboard() {
@@ -107,6 +122,7 @@ export default function Dashboard() {
     data: resume,
     isLoading,
     error,
+    isError,
   } = useQuery({
     queryKey: ['resume', id],
     queryFn: () => fetchResume(id as string),
@@ -115,15 +131,28 @@ export default function Dashboard() {
     gcTime: 30 * 60 * 1000,
   });
 
-  // Handle errors using useEffect
-  if (error) {
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: error.message,
-    });
-    router.push('/');
-  }
+  // Handle errors using useEffect to prevent infinite loops
+  useEffect(() => {
+    if (isError && error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description:
+          typeof error === 'string'
+            ? error
+            : error.message || 'Failed to load resume',
+      });
+
+      // Only redirect for authentication errors or not found errors
+      if (
+        error instanceof Error &&
+        (error.message.includes('Unauthorized') ||
+          error.message.includes('not found'))
+      ) {
+        router.push('/');
+      }
+    }
+  }, [isError, error, toast, router]);
 
   // Initialize editedResume when parsedObject changes
   if (resume?.parsedObject && !editedResume) {
@@ -155,6 +184,11 @@ export default function Dashboard() {
         title: 'Error',
         description: error.message || 'Failed to update resume',
       });
+
+      // Redirect to home page for authentication errors
+      if (error.message.includes('Unauthorized')) {
+        router.push('/');
+      }
     },
   });
 
@@ -176,6 +210,11 @@ export default function Dashboard() {
         title: 'Error',
         description: error.message || 'Failed to save changes',
       });
+
+      // Redirect to home page for authentication errors
+      if (error.message.includes('Unauthorized')) {
+        router.push('/');
+      }
     },
   });
 
@@ -223,6 +262,11 @@ export default function Dashboard() {
           title: 'Error',
           description: error.message || 'Failed to generate cover letter',
         });
+
+        // Redirect to home page for authentication errors
+        if (error.message.includes('Unauthorized')) {
+          router.push('/');
+        }
       },
     });
 
@@ -277,6 +321,11 @@ export default function Dashboard() {
         title: 'Error',
         description: error.message || 'Failed to analyze resume',
       });
+
+      // Redirect to home page for authentication errors
+      if (error.message.includes('Unauthorized')) {
+        router.push('/');
+      }
     },
   });
 
@@ -315,6 +364,11 @@ export default function Dashboard() {
         title: 'Error',
         description: error.message || 'Failed to download PDF',
       });
+
+      // Redirect to home page for authentication errors
+      if (error.message.includes('Unauthorized')) {
+        router.push('/');
+      }
     },
   });
 

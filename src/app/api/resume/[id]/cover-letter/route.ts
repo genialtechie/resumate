@@ -1,10 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { PDFHandler } from '@/lib/pdf/handler';
 import { generateCoverLetter } from '@/lib/llm/generate-cover-letter';
+import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
 
 export const runtime = 'nodejs';
-
-const handler = new PDFHandler();
 
 // Get cover letter for a resume
 export async function GET(
@@ -13,7 +12,10 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const coverLetter = await handler.getCoverLetterForResume(id);
+    const userId = await getUserIdFromRequest();
+
+    const handler = new PDFHandler();
+    const coverLetter = await handler.getCoverLetterForResume(id, userId);
     if (!coverLetter) {
       return NextResponse.json(
         { error: 'No cover letter found for this resume' },
@@ -23,6 +25,11 @@ export async function GET(
     return NextResponse.json(coverLetter, { status: 200 });
   } catch (error) {
     console.error('Error fetching cover letter:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to fetch cover letter' },
       { status: 500 }
@@ -37,6 +44,8 @@ export async function POST(
 ) {
   const { id } = await params;
   try {
+    const userId = await getUserIdFromRequest();
+
     const { jobDescription, tone, resumeObject } = await request.json();
 
     if (!jobDescription) {
@@ -62,15 +71,22 @@ export async function POST(
     );
 
     // Save or update the cover letter
+    const handler = new PDFHandler();
     const coverLetter = await handler.saveCoverLetter(
       id,
       jobDescription,
-      generated.content
+      generated.content,
+      userId
     );
 
     return NextResponse.json({ ...coverLetter, generated }, { status: 201 });
   } catch (error) {
     console.error('Error generating cover letter:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to generate cover letter' },
       { status: 500 }
@@ -85,17 +101,25 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    const coverLetter = await handler.getCoverLetterForResume(id);
+    const userId = await getUserIdFromRequest();
+
+    const handler = new PDFHandler();
+    const coverLetter = await handler.getCoverLetterForResume(id, userId);
     if (!coverLetter) {
       return NextResponse.json(
         { error: 'No cover letter found for this resume' },
         { status: 404 }
       );
     }
-    await handler.deleteCoverLetter(coverLetter.id);
+    await handler.deleteCoverLetter(coverLetter.id, userId);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error deleting cover letter:', error);
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to delete cover letter' },
       { status: 500 }

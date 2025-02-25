@@ -6,7 +6,6 @@ import { Plus, Trash2 } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
@@ -22,7 +21,7 @@ import {
   handleEducationBlur as handleEducationBlurHelper,
   addEducationEntry as addEducationEntryHelper,
   deleteEducationEntry as deleteEducationEntryHelper,
-} from '@/lib/editor-helpers';
+} from '@/lib/utils/editor-helpers';
 
 interface PDFEditorProps {
   editedResume: ResumeContentObject;
@@ -286,41 +285,37 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                   </div>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 hover:bg-gray-100"
-                          onClick={() => addExperienceEntry()}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans">Add experience below</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-gray-100"
+                        onClick={() => addExperienceEntry()}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-sans">Add experience below</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
-                          onClick={() => deleteExperienceEntry(expIdx)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans">Delete experience</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                        onClick={() => deleteExperienceEntry(expIdx)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-sans">Delete experience</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
               <div className="mt-2">
@@ -353,46 +348,42 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     >
                       {detail}
                     </div>
-                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 absolute -right-6 sm:-right-14 top-1/2 -translate-y-1/2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="detail-button h-6 w-6 hover:bg-gray-100"
-                              onClick={() => {
-                                addExperienceDetail(expIdx, detailIdx);
-                              }}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="font-sans">Add bullet point below</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 absolute -right-8 sm:-right-14 top-1/2 -translate-y-1/2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="detail-button h-6 w-6 hover:bg-gray-100"
+                            onClick={() => {
+                              addExperienceDetail(expIdx, detailIdx);
+                            }}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-sans">Add bullet point below</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600"
-                              onClick={() =>
-                                deleteExperienceDetail(expIdx, detailIdx)
-                              }
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="font-sans">Delete bullet point</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                            onClick={() =>
+                              deleteExperienceDetail(expIdx, detailIdx)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-sans">Delete bullet point</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
                 ))}
@@ -489,41 +480,37 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                   </div>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 hover:bg-gray-100"
-                          onClick={() => addEducationEntry()}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans">Add education below</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-gray-100"
+                        onClick={() => addEducationEntry()}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-sans">Add education below</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
-                          onClick={() => deleteEducationEntry(idx)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans">Delete education</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                        onClick={() => deleteEducationEntry(idx)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-sans">Delete education</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>

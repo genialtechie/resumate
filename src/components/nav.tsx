@@ -1,6 +1,6 @@
 'use client';
 
-import { Download } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,18 +11,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-const navItems = [
-  {
-    label: 'Save to',
-    href: '/api/',
-    icon: Download,
-  },
-];
-
+// import { usePathname } from 'next/navigation';
+// import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { redirect } from 'next/navigation';
 export function Nav() {
-  const pathname = usePathname();
+  // const pathname = usePathname();
+  const { signOut } = useAuth();
 
   return (
     <Sidebar
@@ -34,19 +29,17 @@ export function Nav() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => {
+                    signOut();
+                    redirect('/');
+                  }}
+                >
+                  <LogOut />
+                  <span>Sign Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

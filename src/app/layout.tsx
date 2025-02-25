@@ -13,7 +13,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const defaultUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(defaultUrl),
   title: 'qualifies.me | Smart Career Qualification',
   description:
     'Transform your career journey with qualifies.me. Our AI-powered platform provides smart resume tailoring, skills gap analysis, and job matching to help you stand out in your job applications.',

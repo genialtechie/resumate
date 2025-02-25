@@ -1,70 +1,25 @@
 'use client';
 
-import { UploadZone } from '@/components/upload';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Wand2, FileText, Zap, ChartBar } from 'lucide-react';
-import { useState } from 'react';
+import { FileText, Zap, ChartBar } from 'lucide-react';
 import FeatureCard from '@/components/feature-card';
 import Link from 'next/link';
+import AuthDialog from '@/components/auth-dialog';
 
 export default function Home() {
-  const [status, setStatus] = useState<
-    'idle' | 'processing' | 'success' | 'error'
-  >('idle');
-  const [file, setFile] = useState<File | null>(null);
-  const { toast } = useToast();
-
-  const handleUpload = async () => {
-    try {
-      if (!file) throw new Error('No file selected');
-
-      setStatus('processing');
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/resume', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-
-      if (data.error) throw new Error(data.error);
-
-      setStatus('success');
-      toast({
-        title: 'Success',
-        description: 'Resume processed successfully',
-      });
-
-      // Redirect to dashboard with resume ID
-      window.location.href = `/dashboard/${data.id}`;
-    } catch (error) {
-      console.error(error);
-      setStatus('error');
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: `Failed to upload file: ${error}`,
-      });
-    } finally {
-      setStatus('idle');
-    }
-  };
-
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="pt-4 px-4 sm:px-6 lg:px-8">
+      <header className="pt-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex-shrink-0">
           <Link
             href="/"
-            className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight"
+            className="text-4xl sm:text-6xl font-bold tracking-tight"
           >
             qualifies.me
           </Link>
         </div>
+        <AuthDialog trigger={<Button variant="outline">Sign In</Button>} />
       </header>
 
       {/* Hero */}
@@ -74,18 +29,13 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight">
               Your Job Search, Optimized
             </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Upload your resume, analyze job descriptions, and get personalized
+              recommendations to land your dream job.
+            </p>
 
             <div className="md:max-w-2xl mx-auto">
-              <UploadZone onFileChange={setFile} />
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary-hover text-white px-8 py-4 mt-4"
-                onClick={handleUpload}
-                disabled={status !== 'idle' || !file}
-              >
-                <Wand2 className="mr-2 h-4 w-4" />
-                {status === 'processing' ? 'Processing...' : 'Get started'}
-              </Button>
+              <AuthDialog className="mt-4" />
             </div>
           </div>
         </div>
@@ -99,7 +49,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-up">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-              GenAI for Your Job Search
+              Powerful Features for Your Job Search
             </h2>
             <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
               Everything you need to streamline your job application process and
