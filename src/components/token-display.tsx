@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { TokenInfo } from '@/types';
@@ -10,6 +10,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useEffect } from 'react';
+import { TokenService } from '@/lib/utils/token-service';
 
 async function fetchTokens(): Promise<TokenInfo> {
   const response = await fetch('/api/user/tokens');
@@ -20,11 +22,27 @@ async function fetchTokens(): Promise<TokenInfo> {
 }
 
 export function TokenDisplay() {
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['user-tokens'],
     queryFn: fetchTokens,
     refetchInterval: 60000, // Refetch every minute
   });
+
+  // Set up listener for token updates
+  useEffect(() => {
+    // Register the listener
+    const unsubscribe = TokenService.onTokenUpdate(() => {
+      // Invalidate and refetch when tokens are updated
+      queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
+    });
+
+    // Clean up the listener when component unmounts
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient]);
 
   if (isLoading)
     return (
