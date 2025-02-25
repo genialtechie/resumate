@@ -13,7 +13,7 @@ export default function DashboardLayout({
       <div className="flex flex-col h-screen w-full">
         <div className="flex justify-end p-4">
           <TokenDisplay />
-          <SidebarTrigger className="scale-125 bg-primary text-primary-foreground" />
+          <SidebarTrigger className="ml-4 scale-125 bg-primary text-primary-foreground" />
         </div>
         <div className="flex h-[calc(100vh-4rem)]">
           <Nav />

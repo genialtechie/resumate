@@ -30,13 +30,17 @@ export class TokenService {
 
     if (error) {
       console.error('Error fetching token info:', error);
+      
+      // Check if this is the "no rows" error, which means we need to initialize tokens
+      if (error.code === 'PGRST116') {
+        // Create token record if it doesn't exist
+        await this.initializeUserTokens(userId);
+        
+        // Try again after initialization
+        return this.getUserTokens(userId);
+      }
+      
       throw new Error('Failed to retrieve token information');
-    }
-
-    if (!data) {
-      // Create token record if it doesn't exist
-      await this.initializeUserTokens(userId);
-      return this.getUserTokens(userId);
     }
 
     return {
@@ -53,6 +57,18 @@ export class TokenService {
   static async initializeUserTokens(userId: string): Promise<void> {
     const supabase = await createClient();
 
+    // First check if a record already exists to avoid duplicates
+    const { data: existingRecord } = await supabase
+      .from('user_tokens')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (existingRecord) {
+      return; // Record already exists, no need to create a new one
+    }
+
+    // Insert the new token record
     const { error } = await supabase
       .from('user_tokens')
       .insert({ user_id: userId });
