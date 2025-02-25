@@ -7,6 +7,7 @@ import {
   type Session,
 } from '@supabase/supabase-js';
 import { createClient } from '@/lib/utils/supabase/client';
+import { getRedirectURL } from '@/lib/utils/supabase/auth';
 
 type AuthContextType = {
   user: User | null;
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: getRedirectURL(),
       },
     });
   };
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: getRedirectURL(),
       },
     });
   };
