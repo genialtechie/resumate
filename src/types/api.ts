@@ -27,3 +27,10 @@ export interface PDFDocumentInfo {
     modificationDate?: string;
   };
 }
+
+export interface TokenInfo {
+  tokensRemaining: number;
+  tokensUsed: number;
+  lastReset: string;
+  nextReset: string;
+}

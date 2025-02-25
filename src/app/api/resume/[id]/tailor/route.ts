@@ -1,6 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { ResumeTailor } from '@/lib/llm/resume-tailor';
 import { ResumeContentObject } from '@/types';
+import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
+import { withTokenCheck } from '@/lib/llm/token-guard';
+import { TokenLimitError } from '@/lib/utils/token-service';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +16,12 @@ export async function POST(
 ) {
   const { id } = await params;
   try {
+    const userId = await getUserIdFromRequest();
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { jobDescription, resumeObject } = await request.json();
 
     // Validate required fields
@@ -30,10 +39,9 @@ export async function POST(
       );
     }
 
-    // Generate tailoring suggestions
-    const tailoringResult = await tailor.tailorResume(
-      resumeObject as ResumeContentObject,
-      jobDescription
+    // Generate tailoring suggestions with token check
+    const tailoringResult = await withTokenCheck('TAILOR_RESUME', () =>
+      tailor.tailorResume(resumeObject as ResumeContentObject, jobDescription)
     );
 
     return NextResponse.json(
@@ -46,6 +54,15 @@ export async function POST(
     );
   } catch (error) {
     console.error('Error tailoring resume:', error);
+
+    if (error instanceof TokenLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429 });
+    }
+
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: 'Failed to tailor resume' },
       { status: 500 }

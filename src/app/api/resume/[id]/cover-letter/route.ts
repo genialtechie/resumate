@@ -2,6 +2,8 @@ import { NextResponse, NextRequest } from 'next/server';
 import { PDFHandler } from '@/lib/pdf/handler';
 import { generateCoverLetter } from '@/lib/llm/generate-cover-letter';
 import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
+import { withTokenCheck } from '@/lib/llm/token-guard';
+import { TokenLimitError } from '@/lib/utils/token-service';
 
 export const runtime = 'nodejs';
 
@@ -62,12 +64,14 @@ export async function POST(
       );
     }
 
-    // Generate the cover letter
-    const generated = await generateCoverLetter(
-      resumeObject,
-      jobDescription,
-      process.env.OPENROUTER_API_KEY!,
-      tone
+    // Wrap cover letter generation with token checking
+    const generated = await withTokenCheck('GENERATE_COVER_LETTER', () =>
+      generateCoverLetter(
+        resumeObject,
+        jobDescription,
+        process.env.OPENROUTER_API_KEY!,
+        tone
+      )
     );
 
     // Save or update the cover letter
@@ -82,6 +86,10 @@ export async function POST(
     return NextResponse.json({ ...coverLetter, generated }, { status: 201 });
   } catch (error) {
     console.error('Error generating cover letter:', error);
+
+    if (error instanceof TokenLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429 });
+    }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

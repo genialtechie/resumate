@@ -1,0 +1,19 @@
+name: Weekly Token Reset
+
+on:
+  schedule:
+    # Run at midnight every Sunday
+    - cron: '0 0 * * 0'
+
+jobs:
+  reset-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset Tokens
+        run: |
+          curl -X POST ${SUPABASE_FUNCTION_URL}/reset-tokens \
+          -H "Authorization: Bearer ${FUNCTION_SECRET}" \
+          -H "Content-Type: application/json"
+        env:
+          SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
+          FUNCTION_SECRET: ${{ secrets.FUNCTION_SECRET }}
