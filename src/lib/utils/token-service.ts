@@ -1,10 +1,6 @@
 import { createClient } from '@/lib/utils/supabase/server';
 import { TokenInfo } from '@/types';
 
-// Add an event emitter for token updates
-type TokenUpdateListener = () => void;
-const tokenUpdateListeners: TokenUpdateListener[] = [];
-
 export class TokenLimitError extends Error {
   constructor(message = 'Token limit reached') {
     super(message);
@@ -19,28 +15,6 @@ export class TokenService {
     GENERATE_COVER_LETTER: 2,
     TAILOR_RESUME: 3,
   };
-
-  /**
-   * Register a listener for token updates
-   */
-  static onTokenUpdate(listener: TokenUpdateListener): () => void {
-    tokenUpdateListeners.push(listener);
-    
-    // Return a function to unregister the listener
-    return () => {
-      const index = tokenUpdateListeners.indexOf(listener);
-      if (index !== -1) {
-        tokenUpdateListeners.splice(index, 1);
-      }
-    };
-  }
-
-  /**
-   * Notify all listeners that tokens have been updated
-   */
-  static notifyTokenUpdate(): void {
-    tokenUpdateListeners.forEach(listener => listener());
-  }
 
   /**
    * Get user's current token information
@@ -141,9 +115,6 @@ export class TokenService {
       console.error('Error consuming tokens:', error);
       throw new Error('Failed to consume tokens');
     }
-
-    // Notify listeners that tokens have been updated
-    this.notifyTokenUpdate();
     
     return true;
   }

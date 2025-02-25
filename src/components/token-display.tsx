@@ -11,7 +11,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useEffect } from 'react';
-import { TokenService } from '@/lib/utils/token-service';
+import {
+  subscribeToTokenUpdates,
+  publishTokenUpdate,
+} from '@/lib/utils/token-updates';
 
 async function fetchTokens(): Promise<TokenInfo> {
   const response = await fetch('/api/user/tokens');
@@ -33,10 +36,13 @@ export function TokenDisplay() {
   // Set up listener for token updates
   useEffect(() => {
     // Register the listener
-    const unsubscribe = TokenService.onTokenUpdate(() => {
+    const unsubscribe = subscribeToTokenUpdates(() => {
       // Invalidate and refetch when tokens are updated
       queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
     });
+
+    // Set up event listener for the custom event
+    publishTokenUpdate();
 
     // Clean up the listener when component unmounts
     return () => {
