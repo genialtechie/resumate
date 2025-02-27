@@ -3,11 +3,6 @@ import { Nav } from '@/components/nav';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TokenDisplay } from '@/components/token-display';
 
-export const metadata = {
-  title: 'Dashboard | qualifies.me',
-  description: 'Manage your resumes and cover letters',
-};
-
 // Improved preload hints for common resources
 export const viewport = {
   themeColor: '#ffffff',
