@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { UploadZoneProps } from '@/types';
+import { Button } from '@/components/ui/button';
 
 export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -53,9 +54,16 @@ export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
     onFileChange(null);
   };
 
-  const openFileSelector = (e: React.MouseEvent) => {
+  const openFileSelector = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault();
     fileInputRef.current?.click();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openFileSelector(e);
+    }
   };
 
   return (
@@ -69,12 +77,18 @@ export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
           if (file) handleFile(file);
         }}
         className="hidden"
+        aria-label="Upload resume PDF"
+        tabIndex={-1}
       />
       <div
+        onClick={openFileSelector}
+        onKeyDown={handleKeyDown}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={openFileSelector}
+        tabIndex={0}
+        role="button"
+        aria-label="Upload resume PDF"
         className={cn(
           'relative w-full rounded-lg border-2 border-dashed p-8 transition-all duration-200 ease-in-out cursor-pointer',
           isDragging
@@ -95,12 +109,14 @@ export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
                 </p>
               </div>
             </div>
-            <button
+            <Button
               onClick={removeFile}
               className="rounded-full p-1 hover:bg-gray-100"
+              variant="ghost"
+              title="Remove file"
             >
               <X className="h-5 w-5 text-gray-500" />
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 text-center">

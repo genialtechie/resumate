@@ -7,22 +7,17 @@ import { Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
+import { useMutation } from '@tanstack/react-query';
 
 export default function Dashboard() {
-  const [status, setStatus] = useState<
-    'idle' | 'processing' | 'success' | 'error'
-  >('idle');
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
 
-  const handleUpload = async () => {
-    try {
-      if (!file) throw new Error('No file selected');
-
-      setStatus('processing');
-
+  // Use React Query mutation for file upload
+  const { mutate: uploadResume, isPending } = useMutation({
+    mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
 
@@ -36,31 +31,41 @@ export default function Dashboard() {
         throw new Error(errorData.error || 'Failed to upload resume');
       }
 
-      const data = await response.json();
-
-      setStatus('success');
+      return response.json();
+    },
+    onSuccess: (data) => {
       toast({
         title: 'Success',
         description: 'Resume processed successfully',
       });
-
-      // Redirect to resume detail page
       router.push(`/dashboard/${data.id}`);
-    } catch (error) {
+    },
+    onError: (error: Error) => {
       console.error(error);
-      setStatus('error');
       toast({
         variant: 'destructive',
         title: 'Error',
         description: `Failed to upload file: ${
-          error instanceof Error ? error.message : 'Unknown error'
+          error.message || 'Unknown error'
         }`,
       });
-    } finally {
-      setStatus('idle');
+    },
+  });
+
+  const handleUpload = () => {
+    if (!file) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please select a file first',
+      });
+      return;
     }
+
+    uploadResume(file);
   };
 
+  // Optimized JSX with reduced complexity
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
@@ -84,10 +89,20 @@ export default function Dashboard() {
             size="lg"
             className="bg-primary hover:bg-primary-hover text-white px-8 py-4 mt-4 w-full"
             onClick={handleUpload}
-            disabled={status !== 'idle' || !file}
+            disabled={isPending || !file}
+            aria-label="Analyze Resume"
           >
-            <Wand2 className="mr-2 h-4 w-4" />
-            {status === 'processing' ? 'Processing...' : 'Analyze Resume'}
+            {isPending ? (
+              <>
+                <span className="h-4 w-4 mr-2 animate-spin border-2 border-white border-t-transparent rounded-full" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Analyze Resume
+              </>
+            )}
           </Button>
         </div>
       </div>

@@ -8,15 +8,26 @@ export class PDFGenerator {
     const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
     return { pdfDoc, timesRoman, timesBold };
-}
+  }
 
   async generateResume(resume: ResumeContentObject): Promise<Uint8Array> {
     const { pdfDoc, timesRoman, timesBold } = await this.createDocument();
-    const page = pdfDoc.addPage([612, 792]); // Standard US Letter size
+    let page = pdfDoc.addPage([612, 792]); // Standard US Letter size
 
     // Set initial cursor position
     let yOffset = page.getHeight() - 50;
     const margin = 50;
+    const pageBottom = margin; // Bottom margin
+
+    // Function to check if we need a new page
+    const checkForNewPage = (requiredSpace: number = 50) => {
+      if (yOffset < pageBottom + requiredSpace) {
+        page = pdfDoc.addPage([612, 792]);
+        yOffset = page.getHeight() - 50;
+        return true;
+      }
+      return false;
+    };
 
     // Header section
     page.drawText(resume.name, {
@@ -56,12 +67,14 @@ export class PDFGenerator {
     yOffset -= 30;
 
     // Summary section
+    checkForNewPage(80); // Check if we need a new page for summary
     this.drawSection(page, 'SUMMARY', timesBold, margin, yOffset);
     yOffset -= 20;
     yOffset = this.drawWrappedText(page, resume.summary, timesRoman, margin, yOffset, 10);
     yOffset -= 20;
 
     // Skills section
+    checkForNewPage(60); // Check if we need a new page for skills
     this.drawSection(page, 'SKILLS', timesBold, margin, yOffset);
     yOffset -= 20;
     yOffset = this.drawWrappedText(
@@ -75,10 +88,14 @@ export class PDFGenerator {
     yOffset -= 20;
 
     // Experience section
+    checkForNewPage(60); // Check if we need a new page for experience
     this.drawSection(page, 'EXPERIENCE', timesBold, margin, yOffset);
     yOffset -= 20;
 
     for (const exp of resume.experience) {
+      // Check if we need a new page for this experience entry
+      checkForNewPage(70);
+      
       page.drawText(exp.company, {
         x: margin,
         y: yOffset,
@@ -106,13 +123,24 @@ export class PDFGenerator {
       yOffset -= 15;
 
       for (const detail of exp.details) {
-        const bulletY = yOffset;
-        page.drawText('•', {
-          x: margin,
-          y: bulletY,
-          size: 10,
-          font: timesRoman,
-        });
+        // Check if we need a new page for this detail
+        if (checkForNewPage(30)) {
+          // If we added a new page, we need to redraw the bullet point
+          page.drawText('•', {
+            x: margin,
+            y: yOffset,
+            size: 10,
+            font: timesRoman,
+          });
+        } else {
+          const bulletY = yOffset;
+          page.drawText('•', {
+            x: margin,
+            y: bulletY,
+            size: 10,
+            font: timesRoman,
+          });
+        }
 
         yOffset = this.drawWrappedText(
           page,
@@ -120,7 +148,9 @@ export class PDFGenerator {
           timesRoman,
           margin + 15,
           yOffset,
-          10
+          10,
+          500,
+          checkForNewPage
         );
         yOffset -= 10;
       }
@@ -129,10 +159,14 @@ export class PDFGenerator {
     }
 
     // Education section
+    checkForNewPage(60); // Check if we need a new page for education
     this.drawSection(page, 'EDUCATION', timesBold, margin, yOffset);
     yOffset -= 20;
 
     for (const edu of resume.education) {
+      // Check if we need a new page for this education entry
+      checkForNewPage(60);
+      
       page.drawText(edu.institution, {
         x: margin,
         y: yOffset,
@@ -185,7 +219,8 @@ export class PDFGenerator {
     x: number,
     y: number,
     size: number,
-    maxWidth: number = 500
+    maxWidth: number = 500,
+    pageBreakCallback?: (requiredSpace: number) => boolean
   ): number {
     const words = text.split(' ');
     let line = '';
@@ -196,6 +231,11 @@ export class PDFGenerator {
       const width = font.widthOfTextAtSize(testLine, size);
 
       if (width > maxWidth && line) {
+        // Check if we need a new page before drawing this line
+        if (pageBreakCallback && pageBreakCallback(size + 2)) {
+          yPos = page.getHeight() - 50;
+        }
+        
         page.drawText(line, {
           x,
           y: yPos,
@@ -211,6 +251,11 @@ export class PDFGenerator {
     }
 
     if (line) {
+      // Check if we need a new page before drawing the last line
+      if (pageBreakCallback && pageBreakCallback(size + 2)) {
+        yPos = page.getHeight() - 50;
+      }
+      
       page.drawText(line, {
         x,
         y: yPos,
