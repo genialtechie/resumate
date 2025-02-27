@@ -15,10 +15,6 @@ export default function DashboardFallback() {
   const router = useRouter();
   const { user } = useAuth();
 
-  if (!user) {
-    router.push('/');
-  }
-
   // Use React Query mutation for file upload
   const { mutate: uploadResume, isPending } = useMutation({
     mutationFn: async (file: File) => {

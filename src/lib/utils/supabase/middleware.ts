@@ -36,8 +36,15 @@ export const updateSession = async (request: NextRequest) => {
   const user = await supabase.auth.getUser();
 
   // protected routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && user.error) {
-    return NextResponse.redirect(new URL('/', request.url));
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    // Allow /dashboard/[id] routes if user is authenticated
+    if (!user.error && user.data.user) {
+      return response;
+    }
+    // Only redirect to home if user is not authenticated
+    if (user.error) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
   }
 
   // Protect all API routes

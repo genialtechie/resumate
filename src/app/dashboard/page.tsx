@@ -4,6 +4,7 @@ import DashboardFallback from '@/app/dashboard/dashboard-fallback';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  let latestResumeId: string | null = null;
 
   // Get the current session
   const {
@@ -11,23 +12,29 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // Handle unauthenticated case (though middleware should catch this)
     redirect('/');
   }
 
-  // Check if user has any resumes
-  const { data: resumes, error } = await supabase
-    .from('resumes')
-    .select('id')
-    .eq('user_id', user.id)
-    .order('updated_at', { ascending: false })
-    .limit(1);
+  try {
+    // Check if user has any resumes
+    const { data: resumes, error } = await supabase
+      .from('resumes')
+      .select('id')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1);
 
-  // Redirect to most recent resume if available
-  if (!error && resumes && resumes.length > 0) {
-    redirect(`/dashboard/${resumes[0].id}`);
+    if (!error && resumes && resumes.length > 0) {
+      latestResumeId = resumes[0].id;
+    }
+  } catch (err) {
+    console.error('Error in resume fetch:', err);
+  } finally {
+    // Redirect to most recent resume if we found one
+    if (latestResumeId) {
+      redirect(`/dashboard/${latestResumeId}`);
+    }
+    // Otherwise, show the upload page
+    return <DashboardFallback />;
   }
-
-  // Render the dashboard normally if no resumes found
-  return <DashboardFallback />;
 }
