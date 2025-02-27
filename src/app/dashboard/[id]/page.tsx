@@ -26,6 +26,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
 import { ResumeTailor } from '@/components/resume-tailor';
 import { mergeResumeUpdates } from '@/lib/utils/editor-helpers';
+import { useAuth } from '@/contexts/auth-context';
 
 // Fetch the resume metadata from the database
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
@@ -102,7 +103,7 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
-  const [showTailorSheet, setShowTailorSheet] = useState(false);
+  const [showTailorSheet, setShowTailorSheet] = useState(false); // State for the tailor sheet
 
   // Use custom localStorage hooks
   const [editedResume, setEditedResume, clearEditedResume] =
@@ -116,6 +117,12 @@ export default function Dashboard() {
     `cover_letter_${id}`,
     ''
   );
+
+  // Get the user from the auth context
+  const { user } = useAuth();
+  if (!user) {
+    router.push('/');
+  }
 
   // Configure React Query for resume data
   const {

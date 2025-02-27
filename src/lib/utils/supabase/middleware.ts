@@ -60,23 +60,6 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Handle dashboard to most recent resume redirect
-  if (request.nextUrl.pathname === '/dashboard' && !user.error && user.data.user) {
-    const userId = user.data.user.id;
-    
-    // Check if user has any resumes
-    const { data: resumes, error } = await supabase
-      .from('resumes')
-      .select('id')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
-      .limit(1);
-    
-    // If user has resumes, redirect to the most recent one
-    if (!error && resumes && resumes.length > 0) {
-      return NextResponse.redirect(new URL(`/dashboard/${resumes[0].id}`, request.url));
-    }
-  }
 
   return response;
 };
