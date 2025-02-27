@@ -3,11 +3,6 @@ import { Nav } from '@/components/nav';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TokenDisplay } from '@/components/token-display';
 
-// Improved preload hints for common resources
-export const viewport = {
-  themeColor: '#ffffff',
-};
-
 // Optimize loading
 export default function DashboardLayout({
   children,

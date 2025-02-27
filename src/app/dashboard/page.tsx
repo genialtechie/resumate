@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useMutation } from '@tanstack/react-query';
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
   const router = useRouter();
