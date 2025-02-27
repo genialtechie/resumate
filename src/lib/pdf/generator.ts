@@ -8,7 +8,7 @@ export class PDFGenerator {
     const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
     return { pdfDoc, timesRoman, timesBold };
-  }
+}
 
   async generateResume(resume: ResumeContentObject): Promise<Uint8Array> {
     const { pdfDoc, timesRoman, timesBold } = await this.createDocument();
@@ -58,13 +58,13 @@ export class PDFGenerator {
     // Summary section
     this.drawSection(page, 'SUMMARY', timesBold, margin, yOffset);
     yOffset -= 20;
-    this.drawWrappedText(page, resume.summary, timesRoman, margin, yOffset, 10);
-    yOffset -= 40;
+    yOffset = this.drawWrappedText(page, resume.summary, timesRoman, margin, yOffset, 10);
+    yOffset -= 20;
 
     // Skills section
     this.drawSection(page, 'SKILLS', timesBold, margin, yOffset);
     yOffset -= 20;
-    this.drawWrappedText(
+    yOffset = this.drawWrappedText(
       page,
       resume.skills.join(' • '),
       timesRoman,
@@ -72,7 +72,7 @@ export class PDFGenerator {
       yOffset,
       10
     );
-    yOffset -= 40;
+    yOffset -= 20;
 
     // Experience section
     this.drawSection(page, 'EXPERIENCE', timesBold, margin, yOffset);
@@ -106,14 +106,15 @@ export class PDFGenerator {
       yOffset -= 15;
 
       for (const detail of exp.details) {
+        const bulletY = yOffset;
         page.drawText('•', {
           x: margin,
-          y: yOffset,
+          y: bulletY,
           size: 10,
           font: timesRoman,
         });
 
-        this.drawWrappedText(
+        yOffset = this.drawWrappedText(
           page,
           detail,
           timesRoman,
@@ -121,7 +122,7 @@ export class PDFGenerator {
           yOffset,
           10
         );
-        yOffset -= 15;
+        yOffset -= 10;
       }
 
       yOffset -= 15;
@@ -185,7 +186,7 @@ export class PDFGenerator {
     y: number,
     size: number,
     maxWidth: number = 500
-  ) {
+  ): number {
     const words = text.split(' ');
     let line = '';
     let yPos = y;
@@ -219,6 +220,6 @@ export class PDFGenerator {
       });
     }
 
-    return yPos;
+    return yPos - (size + 2);
   }
 }
