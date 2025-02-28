@@ -505,24 +505,25 @@ export default function Dashboard() {
                 <FileStack className="h-4 w-4" />
               </Button>
             )}
-          <Button
-            onClick={() => downloadPDF()}
-            disabled={isDownloading || !resume?.parsedObject}
-            variant="outline"
-            className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
-            title="Download PDF"
-          >
-            {isDownloading ? (
-              <div className="animate-spin">
-                <LoaderPinwheel className="h-4 w-4" />
-              </div>
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-          </Button>
+
           {/* Save and Reset Buttons */}
           {activeView === 'editor' && (
             <>
+              <Button
+                onClick={() => downloadPDF()}
+                disabled={isDownloading || !resume?.parsedObject}
+                variant="outline"
+                className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+                title="Download PDF"
+              >
+                {isDownloading ? (
+                  <div className="animate-spin">
+                    <LoaderPinwheel className="h-4 w-4" />
+                  </div>
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+              </Button>
               <Button
                 onClick={handleResetEdits}
                 variant="outline"
