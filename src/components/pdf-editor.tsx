@@ -284,14 +284,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     {exp.dates}
                   </div>
                 </div>
-                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-gray-100"
+                        className="h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         onClick={() => addExperienceEntry()}
+                        aria-label="Add experience entry"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            addExperienceEntry();
+                          }
+                        }}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -306,8 +314,16 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         onClick={() => deleteExperienceEntry(expIdx)}
+                        aria-label={`Delete experience entry for ${exp.company}`}
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            deleteExperienceEntry(expIdx);
+                          }
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -348,15 +364,23 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     >
                       {detail}
                     </div>
-                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 absolute -right-8 sm:-right-14 top-1/2 -translate-y-1/2">
+                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 absolute -right-8 sm:-right-14 top-1/2 -translate-y-1/2">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="detail-button h-6 w-6 hover:bg-gray-100"
+                            className="detail-button h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             onClick={() => {
                               addExperienceDetail(expIdx, detailIdx);
+                            }}
+                            aria-label="Add bullet point"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                addExperienceDetail(expIdx, detailIdx);
+                              }
                             }}
                           >
                             <Plus className="h-4 w-4" />
@@ -372,10 +396,18 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                            className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             onClick={() =>
                               deleteExperienceDetail(expIdx, detailIdx)
                             }
+                            aria-label="Delete bullet point"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                deleteExperienceDetail(expIdx, detailIdx);
+                              }
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -389,8 +421,17 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                 ))}
                 {exp.details.length === 0 && (
                   <div
-                    className="flex items-start px-2 py-1 text-gray-400 italic"
+                    className="flex items-start px-2 py-1 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
                     onClick={() => addExperienceDetail(expIdx, -1)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        addExperienceDetail(expIdx, -1);
+                      }
+                    }}
+                    aria-label="Add details to experience"
                   >
                     <span className="mr-2">•</span>
                     Add details...
@@ -401,8 +442,17 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
           ))
         ) : (
           <div
-            className="p-3 text-gray-400 italic cursor-pointer"
+            className="p-3 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
             onClick={addExperienceEntry}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                addExperienceEntry();
+              }
+            }}
+            aria-label="Add experience entry"
           >
             Add experience...
           </div>
@@ -479,14 +529,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     {edu.location}
                   </div>
                 </div>
-                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100">
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-gray-100"
+                        className="h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         onClick={() => addEducationEntry()}
+                        aria-label="Add education entry"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            addEducationEntry();
+                          }
+                        }}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -501,8 +559,16 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600"
+                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         onClick={() => deleteEducationEntry(idx)}
+                        aria-label={`Delete education entry for ${edu.institution}`}
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            deleteEducationEntry(idx);
+                          }
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -517,8 +583,17 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
           ))
         ) : (
           <div
-            className="p-3 text-gray-400 italic cursor-pointer"
+            className="p-3 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
             onClick={addEducationEntry}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                addEducationEntry();
+              }
+            }}
+            aria-label="Add education entry"
           >
             Add education...
           </div>
