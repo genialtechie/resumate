@@ -45,11 +45,12 @@ Job Description:
 ${jobDescription}
 
 Instructions:
-1. Create a well-structured cover letter with clear opening, body paragraphs, and closing
-2. Focus on matching the candidate's experience and skills to the job requirements
-3. Use specific examples from the resume to demonstrate qualifications
-4. Maintain a ${tone} tone throughout
-5. Include a strong call to action in the closing
+1. DO NOT include any greeting/salutation (like "Dear Hiring Manager") or closing signature (like "Sincerely, [Name]") as these will be added separately
+2. Start directly with the opening paragraph about the candidate's interest in the position
+3. Create body paragraphs that match the candidate's experience and skills to the job requirements
+4. Use specific examples from the resume to demonstrate qualifications
+5. Maintain a ${tone} tone throughout
+6. End with a call to action but do not include a formal closing like "Sincerely" or "Best Regards"
 
 Output: Generate a cover letter following the specified schema.`;
   }

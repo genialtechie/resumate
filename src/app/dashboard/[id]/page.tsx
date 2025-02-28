@@ -377,6 +377,66 @@ export default function Dashboard() {
     },
   });
 
+  // Add download cover letter PDF mutation
+  const {
+    mutate: downloadCoverLetterPDF,
+    isPending: isDownloadingCoverLetter,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!coverLetterContent || !editedResume) {
+        throw new Error('Cover letter content or resume data is missing');
+      }
+
+      try {
+        const response = await fetch(`/api/resume/${id}/cover-letter/pdf`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: coverLetterContent,
+            name: editedResume.name,
+            contact: editedResume.contact,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || 'Failed to generate cover letter PDF'
+          );
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cover-letter-${editedResume.name.split(' ')[0] || id}-${
+          new Date().toISOString().split('T')[0]
+        }.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error('Error downloading cover letter PDF:', error);
+        throw error;
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to download cover letter PDF',
+      });
+
+      // Redirect to home page for authentication errors
+      if (error.message.includes('Unauthorized')) {
+        router.push('/');
+      }
+    },
+  });
+
   const toggleView = (view: 'editor' | 'upload' | 'cover-letter') => {
     setActiveView((currentView) => (currentView === view ? 'none' : view));
   };
@@ -549,6 +609,25 @@ export default function Dashboard() {
               </Button>
             </>
           )}
+
+          {/* Add Download Button for Cover Letter */}
+          {activeView === 'cover-letter' && coverLetterContent && (
+            <Button
+              onClick={() => downloadCoverLetterPDF()}
+              disabled={isDownloadingCoverLetter || !coverLetterContent}
+              variant="outline"
+              className="rounded-none hover:text-primary hover:border-primary transition-all duration-300 ease-in-out transform hover:scale-105"
+              title="Download Cover Letter PDF"
+            >
+              {isDownloadingCoverLetter ? (
+                <div className="animate-spin">
+                  <LoaderPinwheel className="h-4 w-4" />
+                </div>
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Document Editor */}
@@ -598,6 +677,8 @@ export default function Dashboard() {
                 <CoverLetterEditor
                   content={coverLetterContent}
                   onContentChange={setCoverLetterContent}
+                  name={editedResume?.name}
+                  contact={editedResume?.contact}
                 />
               </Suspense>
             </div>

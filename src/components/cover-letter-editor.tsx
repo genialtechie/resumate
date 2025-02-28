@@ -5,11 +5,20 @@ import React, { useRef, useEffect } from 'react';
 interface CoverLetterEditorProps {
   content: string;
   onContentChange: (content: string) => void;
+  name?: string;
+  contact?: {
+    email: string;
+    phone: string;
+    linkedin?: string;
+    website?: string;
+  };
 }
 
 const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
   content,
   onContentChange,
+  name = '',
+  contact = { email: '', phone: '' },
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef(content); // Track content in a ref to avoid unnecessary comparisons
@@ -49,16 +58,50 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
     }
   };
 
+  // Format the current date in the same format as the PDF
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <div className="max-w-3xl md:max-w-4xl mx-auto p-6 bg-white border shadow-md">
-      <h2 className="text-2xl font-semibold mb-6">Cover Letter</h2>
+      <div className="font-serif text-base leading-relaxed mb-8">
+        {/* Header with name and contact info */}
+        <div className="mb-4">
+          <p className="text-lg font-bold">{name || 'Your Name'}</p>
+          <p>{contact.email || 'your.email@example.com'}</p>
+          <p>{contact.phone || '(123) 456-7890'}</p>
+          {contact.linkedin && <p>{contact.linkedin}</p>}
+          {contact.website && <p>{contact.website}</p>}
+        </div>
+
+        {/* Date */}
+        <div className="mb-4">
+          <p>{formattedDate}</p>
+        </div>
+
+        {/* Recipient (placeholder) */}
+        <div className="mb-4">
+          <p>To Whom It May Concern,</p>
+        </div>
+      </div>
+
+      {/* Editable content */}
       <div
         ref={editorRef}
-        className="min-h-[500px] p-4 border rounded-lg font-serif text-base leading-relaxed outline-none"
+        className="min-h-[400px] rounded-lg font-serif text-base leading-relaxed outline-none"
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
       />
+
+      {/* Closing */}
+      <div className="font-serif text-base leading-relaxed mt-6">
+        <p className="mb-0">Sincerely,</p>
+        <p className="font-bold">{name || 'Your Name'}</p>
+      </div>
     </div>
   );
 };
