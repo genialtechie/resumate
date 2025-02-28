@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,16 +16,21 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResumeMetadata, ResumeContentObject } from '@/types';
-import { UploadZone } from '@/components/upload';
 import { useToast } from '@/hooks/use-toast';
-import { JobDescriptionInput } from '@/components/job-input';
-import PDFEditor from '@/components/pdf-editor';
-import CoverLetterEditor from '@/components/cover-letter-editor';
-import { isValidResumeObject } from '@/lib/utils/validation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
-import { ResumeTailor } from '@/components/resume-tailor';
 import { mergeResumeUpdates } from '@/lib/utils/editor-helpers';
+import { Skeleton } from '@/components/ui/skeleton';
+import { isValidResumeObject } from '@/lib/utils/validation';
+import { JobDescriptionInput } from '@/components/job-input';
+import { ResumeTailor } from '@/components/resume-tailor';
+import { UploadZone } from '@/components/upload';
+
+// Lazy load heavy components
+const PDFEditor = lazy(() => import('@/components/pdf-editor'));
+const CoverLetterEditor = lazy(
+  () => import('@/components/cover-letter-editor')
+);
 
 // Fetch the resume metadata from the database
 const fetchResume = async (id: string): Promise<ResumeMetadata> => {
@@ -448,25 +453,9 @@ export default function Dashboard() {
     true
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center">
-        <p>Loading resume...</p>
-      </div>
-    );
-  }
-
-  if (error || !resume) {
-    return (
-      <div className="flex items-center justify-center">
-        <p>Failed to load resume. Redirecting...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="w-full md:w-3/5 p-4">
+    <div className="container mx-auto px-4 py-6">
+      <div className="w-full md:w-3/5 md:mx-auto p-4">
         {/* Change Resume and Edit Document controls */}
         <div className="flex gap-4 mb-4">
           <Button
@@ -569,39 +558,59 @@ export default function Dashboard() {
         >
           {activeView === 'upload' && (
             <div className="mb-4 animate-fadeIn">
-              <UploadZone
-                onFileChange={(file) => {
-                  if (file) changeResume(file);
-                }}
-              />
+              <Suspense fallback={<Skeleton className="h-48 w-full" />}>
+                <UploadZone
+                  onFileChange={(file) => {
+                    if (file) changeResume(file);
+                  }}
+                />
+              </Suspense>
             </div>
           )}
 
           {activeView === 'editor' && resume?.parsedObject && editedResume && (
             <div className="w-full animate-fadeIn">
-              <PDFEditor
-                editedResume={editedResume}
-                setEditedResume={setEditedResume}
-              />
+              <Suspense
+                fallback={
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <Skeleton className="h-96 w-full" />
+                  </div>
+                }
+              >
+                <PDFEditor
+                  editedResume={editedResume}
+                  setEditedResume={setEditedResume}
+                />
+              </Suspense>
             </div>
           )}
 
           {activeView === 'cover-letter' && coverLetterContent && (
             <div className="w-full animate-fadeIn">
-              <CoverLetterEditor
-                content={coverLetterContent}
-                onContentChange={setCoverLetterContent}
-              />
+              <Suspense
+                fallback={
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <Skeleton className="h-96 w-full" />
+                  </div>
+                }
+              >
+                <CoverLetterEditor
+                  content={coverLetterContent}
+                  onContentChange={setCoverLetterContent}
+                />
+              </Suspense>
             </div>
           )}
         </div>
 
         {/* Job Description Input */}
         <div className="mt-8 transition-all duration-500 ease-in-out transform">
-          <JobDescriptionInput
-            jobDescription={jobDescription}
-            setJobDescription={setJobDescription}
-          />
+          <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+            <JobDescriptionInput
+              jobDescription={jobDescription}
+              setJobDescription={setJobDescription}
+            />
+          </Suspense>
         </div>
         <div className="mt-4 flex flex-row gap-4">
           {/* Generate Cover Letter Button */}
@@ -657,13 +666,15 @@ export default function Dashboard() {
         </div>
 
         {/* Resume Tailoring Sheet */}
-        <ResumeTailor
-          isOpen={showTailorSheet}
-          onOpenChange={setShowTailorSheet}
-          requirements={tailoringData?.tailoringResult?.requirements}
-          onGenerateResume={handleApplyTailoredChanges}
-          isLoading={isAnalyzing}
-        />
+        <Suspense fallback={null}>
+          <ResumeTailor
+            isOpen={showTailorSheet}
+            onOpenChange={setShowTailorSheet}
+            requirements={tailoringData?.tailoringResult?.requirements}
+            onGenerateResume={handleApplyTailoredChanges}
+            isLoading={isAnalyzing}
+          />
+        </Suspense>
       </div>
     </div>
   );
