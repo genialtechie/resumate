@@ -183,7 +183,8 @@ export function mergeResumeUpdates(
   currentResume: ResumeContentObject,
   suggestedUpdates: Partial<ResumeContentObject>
 ): ResumeContentObject {
-  const updatedResume = { ...currentResume };
+  // Use structuredClone for deep cloning of the resume object
+  const updatedResume = structuredClone(currentResume);
 
   // Update summary if provided
   if (suggestedUpdates.summary) {

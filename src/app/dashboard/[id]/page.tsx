@@ -13,6 +13,8 @@ import {
   FileStack,
   Download,
   ListRestart,
+  Check,
+  X,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResumeMetadata, ResumeContentObject } from '@/types';
@@ -108,6 +110,8 @@ export default function Dashboard() {
   const { toast } = useToast();
   const router = useRouter();
   const [showTailorSheet, setShowTailorSheet] = useState(false); // State for the tailor sheet
+  const [originalResume, setOriginalResume] =
+    useState<ResumeContentObject | null>(null); // State for tracking original resume for diffing
 
   // Use custom localStorage hooks
   const [editedResume, setEditedResume, clearEditedResume] =
@@ -465,6 +469,9 @@ export default function Dashboard() {
     if (!editedResume || !tailoringData?.tailoringResult?.suggestedUpdates)
       return;
 
+    // Save the original resume before applying changes
+    setOriginalResume(structuredClone(editedResume));
+
     // Merge the suggested updates with the current resume
     const updatedResume = mergeResumeUpdates(
       editedResume,
@@ -511,6 +518,118 @@ export default function Dashboard() {
       }
     },
     true
+  );
+
+  // Clear originalResume when view changes away from editor
+  useEffect(() => {
+    if (activeView !== 'editor') {
+      setOriginalResume(null);
+    }
+  }, [activeView]);
+
+  // Handle accepting all changes
+  const handleAcceptAllChanges = useCallback(() => {
+    if (originalResume && editedResume) {
+      // Keep the current edits (already applied)
+      setOriginalResume(null);
+
+      toast({
+        title: 'Changes Accepted',
+        description: 'All suggested changes have been accepted',
+      });
+    }
+  }, [originalResume, editedResume, toast]);
+
+  // Handle rejecting all changes
+  const handleRejectAllChanges = useCallback(() => {
+    if (originalResume && editedResume) {
+      // Revert to the original resume
+      setEditedResume(structuredClone(originalResume));
+      setOriginalResume(null);
+
+      toast({
+        title: 'Changes Rejected',
+        description: 'All suggested changes have been rejected',
+      });
+    }
+  }, [originalResume, editedResume, setEditedResume, toast]);
+
+  // Add a handler for section-specific diff acceptance
+  const handleAcceptSectionDiff = useCallback(
+    (sectionPath: string) => {
+      if (!originalResume || !editedResume) return;
+
+      // Create a deep copy of the original resume
+      const updatedOriginalResume = structuredClone(originalResume);
+
+      // Update the specific section in the originalResume to match editedResume
+      // This effectively "accepts" the change for just that section
+      const pathParts = sectionPath.split('.');
+      let originalSection: Record<string, unknown> =
+        updatedOriginalResume as unknown as Record<string, unknown>;
+      let editedSection: Record<string, unknown> =
+        editedResume as unknown as Record<string, unknown>;
+
+      // Navigate to the nested property except the last part
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        const part = pathParts[i];
+        originalSection = originalSection[part] as Record<string, unknown>;
+        editedSection = editedSection[part] as Record<string, unknown>;
+        if (!originalSection || !editedSection) return;
+      }
+
+      // Update the specific property
+      const lastPath = pathParts[pathParts.length - 1];
+      originalSection[lastPath] = editedSection[lastPath];
+
+      // Set the updated originalResume
+      setOriginalResume(updatedOriginalResume);
+
+      toast({
+        title: 'Section Updated',
+        description: 'Changes for this section have been accepted',
+      });
+    },
+    [originalResume, editedResume, toast]
+  );
+
+  // Add a handler for rejecting section-specific diff
+  const handleRejectSectionDiff = useCallback(
+    (sectionPath: string) => {
+      if (!originalResume || !editedResume) return;
+
+      // Create a deep copy of the edited resume
+      const updatedEditedResume = structuredClone(editedResume);
+
+      // Update the specific section in editedResume to match originalResume
+      // This effectively "rejects" the change for just that section
+      const pathParts = sectionPath.split('.');
+      let originalSection: Record<string, unknown> =
+        originalResume as unknown as Record<string, unknown>;
+      let editedSection: Record<string, unknown> =
+        updatedEditedResume as unknown as Record<string, unknown>;
+
+      // Navigate to the nested property except the last part
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        const part = pathParts[i];
+        originalSection = originalSection[part] as Record<string, unknown>;
+        editedSection = editedSection[part] as Record<string, unknown>;
+        if (!originalSection || !editedSection) return;
+      }
+
+      // Update the specific property
+      const lastPath = pathParts[pathParts.length - 1];
+      editedSection[lastPath] = originalSection[lastPath];
+
+      // Set the updated editedResume
+      setEditedResume(updatedEditedResume);
+
+      toast({
+        title: 'Changes Rejected',
+        description: 'Changes for this section have been rejected',
+      });
+    },
+    [originalResume, editedResume, setEditedResume, toast]
   );
 
   return (
@@ -592,6 +711,26 @@ export default function Dashboard() {
               >
                 <ListRestart className="h-4 w-4" />
               </Button>
+              {originalResume && (
+                <>
+                  <Button
+                    onClick={handleAcceptAllChanges}
+                    variant="outline"
+                    title="Accept All Changes"
+                    className="rounded-none hover:text-green-600 hover:border-green-600 transition-all duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={handleRejectAllChanges}
+                    variant="outline"
+                    title="Reject All Changes"
+                    className="rounded-none hover:text-red-600 hover:border-red-600 transition-all duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
               <Button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
@@ -660,6 +799,10 @@ export default function Dashboard() {
                 <PDFEditor
                   editedResume={editedResume}
                   setEditedResume={setEditedResume}
+                  originalResume={originalResume}
+                  showDiffs={originalResume !== null}
+                  onAcceptSection={handleAcceptSectionDiff}
+                  onRejectSection={handleRejectSectionDiff}
                 />
               </Suspense>
             </div>

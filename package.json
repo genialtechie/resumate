@@ -41,6 +41,7 @@
     "@eslint/eslintrc": "^3",
     "@shadcn/ui": "^0.0.4",
     "@testing-library/jest-dom": "^6.6.3",
+    "@types/diff": "^7.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.4",
