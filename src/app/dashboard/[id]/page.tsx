@@ -297,7 +297,7 @@ export default function Dashboard() {
         },
         body: JSON.stringify({
           jobDescription,
-          resumeObject: editedResume || resume?.parsedObject,
+          resumeObject: editedResume,
           options: {
             focusAreas: ['summary', 'skills', 'experience'],
             maxSuggestedSkills: 10,

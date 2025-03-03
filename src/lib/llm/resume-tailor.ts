@@ -89,12 +89,16 @@ ${JSON.stringify(resume, null, 2)}
 Focus on tailoring these sections: ${focusAreasStr}
 
 Instructions:
-1. Extract key requirements from the job description
+1. Extract key skill requirements from the job description
 2. Identify which requirements and skills are missing from the resume
 3. Suggest specific updates to better align the resume with the job requirements
 4. Maintain professionalism and accuracy in all suggestions
 5. Ensure suggested updates highlight relevant experience without fabricating information
 
+IMPORTANT:
+- all missing requirements should be extracted from key requirements
+- requirements must have the same string in both keyRequirements and missingRequirements
+- requirements should be unrepetitive, concise sentences, while skills should be single words or short phrases
 ${
   options.preserveExperience
     ? 'Note: Preserve the core experience details while optimizing their presentation.'

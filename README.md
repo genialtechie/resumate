@@ -13,10 +13,14 @@ Your AI-powered career qualification platform.
 
 - Next.js 14 (App Router)
 - TypeScript
+- Tanstack Query for data fetching
 - Tailwind CSS
 - Shadcn UI components
+- Lucide icons
 - pdf.js for PDF parsing
 - Supabase for storage
+- OpenRouter for LLM calls
+- Vercel for deployment
 
 ## Getting Started
 
