@@ -78,39 +78,44 @@ export class ResumeTailor extends BaseLLMService {
     const { resume, jobDescription, options } = input as TailoringInput;
     const focusAreasStr = options.focusAreas?.join(', ') || 'all sections';
 
-    return `You are an expert resume tailoring assistant. Analyze the following job description and resume, then provide specific recommendations for optimizing the resume for this role.
+    return `You are an expert resume tailoring assistant. 
+    Your task is to analyze the job description and resume provided below and then give specific recommendations for optimizing the resume for the given role.
 
-Job Description:
-${jobDescription}
+    Job Description:
+    ${jobDescription}
 
-Resume:
-${JSON.stringify(resume, null, 2)}
+    Resume:
+    ${JSON.stringify(resume, null, 2)}
 
-Focus on tailoring these sections: ${focusAreasStr}
+    Focus on tailoring these sections: ${focusAreasStr}
 
-Instructions:
-1. Extract key skill requirements from the job description
-2. Identify which requirements and skills are missing from the resume
-3. Suggest specific updates to better align the resume with the job requirements
-4. Maintain professionalism and accuracy in all suggestions
-5. Ensure suggested updates highlight relevant experience without fabricating information
+    Instructions:
+    1. Extract Key Requirements:
 
-IMPORTANT:
-- all missing requirements should be extracted from key requirements
-- requirements must have the same string in both keyRequirements and missingRequirements
-- requirements should be unrepetitive, concise sentences, while skills should be single words or short phrases
-${
-  options.preserveExperience
-    ? 'Note: Preserve the core experience details while optimizing their presentation.'
-    : ''
-}
-${
-  options.maxSuggestedSkills
-    ? `Limit suggested skills to the ${options.maxSuggestedSkills} most relevant ones.`
-    : ''
-}
+    - Identify and extract qualification criteria directly related to skills and experience from the job description.
+    - Exclude criteria that are less relevant for resume tailoring, such as citizenship, availability, or other general administrative details.
 
-Return a valid JSON object following the specified schema.`;
+    2. Identify Gaps:
+
+    - Determine which of these requirements and skills are missing from the resume.
+
+    3. Suggest Specific Updates:
+
+    - Recommend concrete changes to better align the resume with the job requirements.
+    - Ensure suggestions are professional, accurate, and do not fabricate information.
+    - Focus on highlighting relevant experience.
+
+    4. Maintain Clarity:
+
+    - Present requirements as concise, unrepetitive sentences.
+    - List skills as single words or short phrases.
+
+    Additional Guidelines:
+    - Consistency: All missing requirements should directly match the extracted key requirements (i.e., the same string should appear in both keyRequirements and missingRequirements).
+    - ${options.preserveExperience ? 'Preserve the core experience details while optimizing their presentation.' : ''}
+    - ${options.maxSuggestedSkills ? `Limit suggested skills to the ${options.maxSuggestedSkills} most relevant ones.` : ''}
+
+    Return a valid JSON object following the specified schema.`;
   }
 
   public async tailorResume(
