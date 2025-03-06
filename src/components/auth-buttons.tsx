@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 import { Github, Mail } from 'lucide-react';
 
+/**
+ * Auth Buttons component
+ * @description This component is used to sign in with Google and GitHub.
+ */
 export default function AuthButtons() {
   const { signInWithGoogle, signInWithGithub } = useAuth();
   const [isLoading, setIsLoading] = useState(false);

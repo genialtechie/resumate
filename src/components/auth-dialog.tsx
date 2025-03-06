@@ -18,6 +18,11 @@ interface AuthDialogProps {
   className?: string;
 }
 
+/**
+ * Auth Dialog component
+ * @param trigger - The trigger element to open the dialog
+ * @param className - The class name for the button
+ */
 export default function AuthDialog({ trigger, className }: AuthDialogProps) {
   const [open, setOpen] = useState(false);
 

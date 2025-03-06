@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 
+/**
+ * Custom hook for managing local storage
+ * @param key - The key to store the value in
+ * @param initialValue - The initial value to store
+ * @param validator - A function to validate the value
+ * @returns A tuple containing the state, setState function, and clearStorage function
+ */
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, Zap, ChartBar } from 'lucide-react';
 import FeatureCard from '@/components/feature-card';
 import Link from 'next/link';
+import Image from 'next/image';
 import AuthDialog from '@/components/auth-dialog';
 
 export default function Home() {
@@ -14,9 +15,16 @@ export default function Home() {
         <div className="flex-shrink-0">
           <Link
             href="/"
-            className="text-4xl sm:text-6xl font-bold tracking-tight"
+            className="block text-gray-900"
           >
-            qualifies.me
+            <Image
+              src="/logo.svg"
+              alt="qualifies.me"
+              width={180}
+              height={40}
+              priority
+              className="h-8 sm:h-10 w-auto"
+            />
           </Link>
         </div>
         <AuthDialog trigger={<Button variant="outline">Sign In</Button>} />

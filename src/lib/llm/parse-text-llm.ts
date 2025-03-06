@@ -2,6 +2,11 @@ import { ResumeContentObject } from '@/types';
 import { resumeSchema, response_format } from '@/lib/utils/schemas';
 import { BaseLLMService } from '@/lib/llm/base-llm';
 
+/**
+ * LLM Resume Parser
+ * @extends BaseLLMService
+ * @description This class is responsible for parsing the resume text into a structured JSON object.
+ */
 export class LLMResumeParser extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, { response_format });

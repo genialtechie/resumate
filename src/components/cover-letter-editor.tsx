@@ -14,6 +14,13 @@ interface CoverLetterEditorProps {
   };
 }
 
+/**
+ * Cover Letter Editor component
+ * @param content - The content of the cover letter
+ * @param onContentChange - The function to call when the content changes
+ * @param name - The name of the cover letter
+ * @param contact - The contact information of the cover letter
+ */
 const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
   content,
   onContentChange,

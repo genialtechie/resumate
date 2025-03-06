@@ -8,6 +8,9 @@ export class TokenLimitError extends Error {
   }
 }
 
+/**
+ * Service for managing user tokens
+ */
 export class TokenService {
   // Cost of different operations in tokens
   static readonly COSTS = {
@@ -18,6 +21,8 @@ export class TokenService {
 
   /**
    * Get user's current token information
+   * @param userId - The user's ID
+   * @returns TokenInfo - The user's token information
    */
   static async getUserTokens(userId: string): Promise<TokenInfo> {
     const supabase = await createClient();
@@ -53,6 +58,7 @@ export class TokenService {
 
   /**
    * Initialize tokens for a new user
+   * @param userId - The user's ID
    */
   static async initializeUserTokens(userId: string): Promise<void> {
     const supabase = await createClient();
@@ -81,6 +87,9 @@ export class TokenService {
 
   /**
    * Check if user has enough tokens and consume them if available
+   * @param userId - The user's ID
+   * @param operationType - The type of operation to consume tokens for
+   * @returns True if tokens were consumed, false otherwise
    */
   static async consumeTokens(
     userId: string,
@@ -121,6 +130,7 @@ export class TokenService {
 
   /**
    * Reset tokens for all users whose tokens are due for reset
+   * @returns void
    */
   static async resetExpiredTokens(): Promise<void> {
     const supabase = await createClient();

@@ -9,6 +9,11 @@ import {
   coverLetterResponseFormat,
 } from '@/lib/utils/schemas';
 
+/**
+ * Cover Letter Generator
+ * @extends BaseLLMService
+ * @description This class is responsible for generating a cover letter based on the resume and job description.
+ */
 export class CoverLetterGenerator extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, {

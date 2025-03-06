@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Update the session for the request
+ * @param request - The request object
+ * @returns The response object
+ */
 export const updateSession = async (request: NextRequest) => {
   let response = NextResponse.next({
     request: {

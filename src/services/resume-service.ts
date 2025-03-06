@@ -1,8 +1,14 @@
 import { ResumeContentObject, ResumeMetadata } from '@/types';
 
-// Resume API service
+/**
+ * Resume API service
+ */
 export const resumeService = {
-  // Fetch resume metadata
+  /**
+   * Fetch resume metadata
+   * @param id - The ID of the resume
+   * @returns The resume metadata
+   */
   async fetchResume(id: string): Promise<ResumeMetadata> {
     const response = await fetch(`/api/resume/${id}`);
 
@@ -17,7 +23,12 @@ export const resumeService = {
     return response.json();
   },
 
-  // Update resume with new file
+  /**
+   * Update resume with new file
+   * @param id - The ID of the resume
+   * @param file - The file to update the resume with
+   * @returns The resume metadata
+   */
   async updateResume(id: string, file: File): Promise<ResumeMetadata> {
     const formData = new FormData();
     formData.append('file', file);
@@ -38,7 +49,12 @@ export const resumeService = {
     return response.json();
   },
 
-  // Save editor changes
+  /**
+   * Save editor changes
+   * @param id - The ID of the resume
+   * @param updates - The updates to save
+   * @returns The resume metadata
+   */
   async saveEditorChanges(id: string, updates: ResumeContentObject): Promise<ResumeMetadata> {
     const response = await fetch(`/api/resume/${id}`, {
       method: 'PATCH',
@@ -59,7 +75,13 @@ export const resumeService = {
     return response.json();
   },
 
-  // Generate cover letter
+  /**
+   * Generate cover letter
+   * @param id - The ID of the resume
+   * @param jobDescription - The job description for the cover letter
+   * @param resumeObject - The resume object
+   * @returns The cover letter
+   */
   async generateCoverLetter(id: string, jobDescription: string, resumeObject: ResumeContentObject) {
     const response = await fetch(`/api/resume/${id}/cover-letter`, {
       method: 'POST',
@@ -80,7 +102,12 @@ export const resumeService = {
     return response.json();
   },
 
-  // Generate PDF
+  /**
+   * Generate PDF
+   * @param id - The ID of the resume
+   * @param content - The content of the resume
+   * @returns The PDF
+   */
   async generatePDF(id: string, content: ResumeContentObject): Promise<Blob> {
     const response = await fetch(`/api/resume/${id}/pdf`, {
       method: 'POST',
@@ -97,7 +124,14 @@ export const resumeService = {
     return response.blob();
   },
 
-  // Generate cover letter PDF
+  /**
+   * Generate cover letter PDF
+   * @param id - The ID of the resume
+   * @param content - The content of the resume
+   * @param name - The name of the resume
+   * @param contact - The contact information of the resume
+   * @returns The PDF
+   */
   async generateCoverLetterPDF(
     id: string,
     content: string,
@@ -120,7 +154,13 @@ export const resumeService = {
     return response.blob();
   },
 
-  // Get tailoring analysis
+  /**
+   * Get tailoring analysis
+   * @param id - The ID of the resume
+   * @param jobDescription - The job description for the tailoring analysis
+   * @param resumeObject - The resume object
+   * @returns The tailoring analysis
+   */
   async getTailoringAnalysis(
     id: string,
     jobDescription: string,

@@ -37,6 +37,11 @@ interface ActionButtonsProps {
   onDownloadCoverLetter: () => void;
 }
 
+/**
+ * Action buttons for the dashboard
+ * @param props - The props for the action buttons
+ * @returns The action buttons
+ */
 export const ActionButtons = memo(function ActionButtons({
   activeView,
   isUploading,

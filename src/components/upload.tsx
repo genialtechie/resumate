@@ -7,6 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { UploadZoneProps } from '@/types';
 import { Button } from '@/components/ui/button';
 
+/**
+ * Upload Zone component
+ * @description This component is used to upload a resume file.
+ * @param onFileChange - The function to call when a file is uploaded
+ */
 export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

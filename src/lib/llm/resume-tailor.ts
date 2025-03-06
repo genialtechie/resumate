@@ -16,6 +16,11 @@ const DEFAULT_OPTIONS: TailoringOptions = {
   preserveExperience: true,
 };
 
+/**
+ * Resume Tailor class
+ * @extends BaseLLMService
+ * @description This class is responsible for tailoring the resume based on the job description.
+ */
 export class ResumeTailor extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, {

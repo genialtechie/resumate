@@ -14,6 +14,11 @@ interface LLMConfig {
   response_format?: unknown;
 }
 
+/**
+ * Base LLM service
+ * @abstract
+ * @description This is the base class for all LLM services. It provides a common interface for all LLM services.
+ */
 export abstract class BaseLLMService {
   protected apiKey: string;
   protected config: LLMConfig;

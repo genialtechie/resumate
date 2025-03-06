@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/utils/supabase/server';
 
-// Efficient way to get the user ID
+/**
+ * Efficient way to get the user ID in a server component
+ * @returns The user's ID
+ */
 export async function getUserIdFromRequest(): Promise<string> {
   const supabase = await createClient();
   const {
@@ -14,6 +17,10 @@ export async function getUserIdFromRequest(): Promise<string> {
   return user.id;
 }
 
+/**
+ * Get the redirect URL for the dashboard
+ * @returns The redirect URL
+ */
 export const getRedirectURL = () => {
   let url =
     process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.

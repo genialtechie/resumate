@@ -4,6 +4,9 @@ import { triggerTokenUpdate } from '@/lib/utils/token-updates';
 
 /**
  * Higher-order function that wraps LLM operations with token checking
+ * @param operationType - The type of operation to check tokens for
+ * @param operation - The operation to wrap with token checking
+ * @returns The result of the operation
  */
 export async function withTokenCheck<T>(
   operationType: keyof typeof TokenService.COSTS,

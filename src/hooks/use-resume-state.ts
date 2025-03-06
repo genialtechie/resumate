@@ -7,6 +7,13 @@ import { ResumeContentObject } from '@/types';
 import { resumeService } from '@/services/resume-service';
 import { isValidResumeObject } from '@/lib/utils/validation';
 
+/**
+ * Hook for managing the resume state
+ * @param id - The ID of the resume
+ * @param jobDescription - The job description for the cover letter
+ * @param setActiveView - The function to set the active view
+ * @returns The resume state
+ */
 export function useResumeState(
   id: string, 
   jobDescription: string,
@@ -18,7 +25,10 @@ export function useResumeState(
   const [showTailorSheet, setShowTailorSheet] = useState(false);
   const [originalResume, setOriginalResume] = useState<ResumeContentObject | null>(null);
 
-  // Error handler
+  /**
+   * Error handler
+   * @param error - The error to handle
+   */
   const handleError = useCallback((error: Error) => {
     toast({
       variant: 'destructive',
@@ -31,7 +41,10 @@ export function useResumeState(
     }
   }, [toast, router]);
 
-  // Local storage state
+  /**
+   * Local storage state
+   * @returns The edited resume
+   */
   const [editedResume, setEditedResume, clearEditedResume] = useLocalStorage<ResumeContentObject | null>(
     `edited_resume_${id}`,
     null,
@@ -43,7 +56,10 @@ export function useResumeState(
     ''
   );
 
-  // Resume query
+  /**
+   * Resume query
+   * @returns The resume
+   */
   const {
     data: resume,
     isLoading,
@@ -57,12 +73,18 @@ export function useResumeState(
     gcTime: 30 * 60 * 1000,
   });
 
-  // Initialize editedResume when parsedObject changes
+  /**
+   * Initialize editedResume when parsedObject changes
+   */
   if (resume?.parsedObject && !editedResume) {
     setEditedResume(resume.parsedObject);
   }
 
-  // File upload mutation
+  /**
+   * File upload mutation
+   * @param file - The file to upload
+   * @returns The uploaded resume
+   */
   const { mutate: changeResume, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => resumeService.updateResume(id, file),
     onSuccess: (newResume) => {
@@ -79,7 +101,11 @@ export function useResumeState(
     onError: handleError,
   });
 
-  // Save changes mutation
+  /**
+   * Save changes mutation
+   * @param updates - The updates to save
+   * @returns The saved resume
+   */
   const { mutate: saveChanges, isPending: isSaving } = useMutation({
     mutationFn: (updates: ResumeContentObject) => resumeService.saveEditorChanges(id, updates),
     onSuccess: (newResume) => {
@@ -93,7 +119,11 @@ export function useResumeState(
     onError: handleError,
   });
 
-  // Cover letter generation mutation
+  /**
+   * Generate a cover letter
+   * @param data - The data to generate the cover letter from
+   * @returns The generated cover letter
+   */
   const { mutate: generateCoverLetter, isPending: isGeneratingCoverLetter } = useMutation({
     mutationFn: () => {
       if (!editedResume) throw new Error('No resume data available');
@@ -109,7 +139,10 @@ export function useResumeState(
     onError: handleError,
   });
 
-  // Tailoring analysis mutation
+  /**
+   * Tailoring analysis mutation
+   * @returns The tailoring analysis
+   */
   const {
     mutate: getTailoringAnalysis,
     isPending: isAnalyzing,
@@ -130,7 +163,9 @@ export function useResumeState(
     onError: handleError,
   });
 
-  // Reset functionality
+  /**
+   * Reset the edited resume to the original resume
+   */
   const handleResetEdits = useCallback(() => {
     if (resume?.parsedObject) {
       setEditedResume(resume.parsedObject);

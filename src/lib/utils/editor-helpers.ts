@@ -1,6 +1,12 @@
 import { ResumeContentObject } from '@/types';
 
-// Generic handler for top-level string fields
+/**
+ * Generic handler for top-level string fields
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param field - The field to update
+ * @param value - The new value for the field
+ */
 export const handleFieldBlur = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -16,7 +22,12 @@ export const handleFieldBlur = (
   });
 };
 
-// Handler for updating the contact info from a single editable block
+/**
+ * Handler for updating the contact info from a single editable block
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param value - The new value for the contact info
+ */
 export const handleContactBlur = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -32,7 +43,12 @@ export const handleContactBlur = (
   });
 };
 
-// Handler for updating skills
+/**
+ * Handler for updating skills
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param value - The new value for the skills
+ */
 export const handleSkillsBlur = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -48,7 +64,13 @@ export const handleSkillsBlur = (
   });
 };
 
-// For updating an experience entry
+/**
+ * For updating an experience entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param index - The index of the experience entry
+ * @param field - The field to update
+ */
 export const handleExperienceBlur = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -64,7 +86,14 @@ export const handleExperienceBlur = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// For updating a single detail line in an experience entry
+/**
+ * For updating a single detail line in an experience entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param expIndex - The index of the experience entry
+ * @param detailIndex - The index of the detail entry to update
+ * @param value - The new value for the detail entry
+ */
 export const handleExperienceDetailChange = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -86,7 +115,13 @@ export const handleExperienceDetailChange = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// Add a new detail entry after the specified index
+/**
+ * Adds a new detail entry after the specified index
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param expIndex - The index of the experience entry
+ * @param detailIndex - The index of the detail entry to add
+ */
 export const addExperienceDetail = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -100,7 +135,13 @@ export const addExperienceDetail = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// Delete a detail entry
+/**
+ * Deletes a detail entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param expIndex - The index of the experience entry
+ * @param detailIndex - The index of the detail entry to delete
+ */
 export const deleteExperienceDetail = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -114,7 +155,11 @@ export const deleteExperienceDetail = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// Add new experience entry
+/**
+ * Adds a new experience entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ */
 export const addExperienceEntry = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void
@@ -129,7 +174,12 @@ export const addExperienceEntry = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// Delete experience entry
+/**
+ * Deletes an experience entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param expIndex - The index of the experience entry to delete
+ */
 export const deleteExperienceEntry = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -140,7 +190,14 @@ export const deleteExperienceEntry = (
   setEditedResume({ ...editedResume, experience: newExp });
 };
 
-// For updating an education entry
+/**
+ * For updating an education entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param index - The index of the education entry
+ * @param field - The field to update
+ * @param value - The new value for the field
+ */
 export const handleEducationBlur = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -153,7 +210,11 @@ export const handleEducationBlur = (
   setEditedResume({ ...editedResume, education: newEdu });
 };
 
-// Add new education entry
+/**
+ * Adds a new education entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ */
 export const addEducationEntry = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void
@@ -168,7 +229,12 @@ export const addEducationEntry = (
   setEditedResume({ ...editedResume, education: newEdu });
 };
 
-// Delete education entry
+/**
+ * Deletes an education entry
+ * @param editedResume - The current resume object
+ * @param setEditedResume - The function to update the resume object
+ * @param eduIndex - The index of the education entry to delete
+ */
 export const deleteEducationEntry = (
   editedResume: ResumeContentObject,
   setEditedResume: (resume: ResumeContentObject) => void,
@@ -179,6 +245,12 @@ export const deleteEducationEntry = (
   setEditedResume({ ...editedResume, education: newEdu });
 };
 
+/**
+ * Merges suggested updates into the current resume object
+ * @param currentResume - The current resume object
+ * @param suggestedUpdates - Partial<ResumeContentObject> - The suggested updates
+ * @returns ResumeContentObject - The updated resume object
+ */
 export function mergeResumeUpdates(
   currentResume: ResumeContentObject,
   suggestedUpdates: Partial<ResumeContentObject>

@@ -30,11 +30,10 @@ interface InlineDiffEditorProps {
 }
 
 /**
- * A unified component for displaying text diffs with inline editing capabilities.
+ * Inline Diff Editor component
+ * @description A unified component for displaying text diffs with inline editing capabilities.
  * - Shows word-level diffs between old and new text
  * - Allows accepting or rejecting changes
- * - Always uses contentEditable for native editing feel
- * - Performance optimized for large text blocks
  */
 const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
   oldText,
@@ -156,7 +155,7 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
           </div>
         )}
 
-        {/* Diff content that's still editable */}
+        {/* Editable Diff content*/}
         <div
           ref={contentRef}
           className="p-3 min-w-full outline-none focus:outline-none"

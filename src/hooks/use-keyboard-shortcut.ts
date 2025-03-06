@@ -8,6 +8,13 @@ type KeyboardShortcut = {
   preventDefault?: boolean;
 };
 
+/**
+ * Use Keyboard Shortcut hook
+ * @param shortcut - The keyboard shortcut to listen for
+ * @param callback - The callback to call when the shortcut is pressed
+ * @param enabled - Whether the shortcut is enabled
+ * @returns void
+ */
 export function useKeyboardShortcut(
   shortcut: KeyboardShortcut,
   callback: (e: KeyboardEvent) => void,

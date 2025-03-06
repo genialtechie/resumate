@@ -22,6 +22,14 @@ interface ResumeTailorProps {
   onGenerateResume?: () => void;
 }
 
+/**
+ * Resume Tailor component
+ * @param isOpen - Whether the sheet is open
+ * @param onOpenChange - Function to change the open state
+ * @param requirements - Tailored requirements object from the LLM
+ * @param isLoading - Whether the requirements are loading
+ * @param onGenerateResume - Function to generate the resume
+ */
 export function ResumeTailor({
   isOpen,
   onOpenChange,

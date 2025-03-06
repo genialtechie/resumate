@@ -11,6 +11,7 @@ const listeners: TokenUpdateListener[] = [];
 
 /**
  * Subscribe to token updates
+ * @param callback - The callback to call when a token update occurs
  * @returns A function to unsubscribe
  */
 export function subscribeToTokenUpdates(callback: TokenUpdateListener): () => void {
@@ -28,6 +29,7 @@ export function subscribeToTokenUpdates(callback: TokenUpdateListener): () => vo
 /**
  * Publish a token update event
  * This should be called by API routes after token operations
+ * @returns void
  */
 export function publishTokenUpdate(): void {
   // Use setTimeout to ensure this runs after the current call stack
@@ -36,7 +38,10 @@ export function publishTokenUpdate(): void {
   }, 0);
 }
 
-// Create a method to trigger updates from server actions or API routes
+/**
+ * Trigger a token update
+ * @returns void
+ */
 export async function triggerTokenUpdate(): Promise<void> {
   try {
     // Make a call to a simple API endpoint that will publish the update

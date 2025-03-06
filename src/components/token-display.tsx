@@ -16,6 +16,10 @@ import {
   publishTokenUpdate,
 } from '@/lib/utils/token-updates';
 
+/**
+ * Fetch token information
+ * @returns The token information
+ */
 async function fetchTokens(): Promise<TokenInfo> {
   const response = await fetch('/api/user/tokens');
   if (!response.ok) {
@@ -24,6 +28,10 @@ async function fetchTokens(): Promise<TokenInfo> {
   return response.json();
 }
 
+/**
+ * Token Display component
+ * @description This component displays the user's token information.
+ */
 export function TokenDisplay() {
   const queryClient = useQueryClient();
 

@@ -1,6 +1,10 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from 'pdf-lib';
 import { ResumeContentObject } from '@/types';
 
+/**
+ * PDF Generator class
+ * @description This class is responsible for generating PDF documents.
+ */
 export class PDFGenerator {
   private async createDocument() {
     const pdfDoc = await PDFDocument.create();
@@ -10,6 +14,11 @@ export class PDFGenerator {
     return { pdfDoc, timesRoman, timesBold };
   }
 
+  /**
+   * Generate a resume PDF
+   * @param resume - The resume object
+   * @returns The PDF
+   */
   async generateResume(resume: ResumeContentObject): Promise<Uint8Array> {
     const { pdfDoc, timesRoman, timesBold } = await this.createDocument();
     let page = pdfDoc.addPage([612, 792]); // Standard US Letter size
@@ -196,6 +205,14 @@ export class PDFGenerator {
     return pdfDoc.save();
   }
 
+  /**
+   * Generate a cover letter PDF
+   * @param content - The content of the cover letter
+   * @param name - The name of the cover letter
+   * @param contactInfo - The contact information of the cover letter
+   * @param recipientInfo - The recipient information of the cover letter
+   * @returns The PDF
+   */
   async generateCoverLetter(
     content: string, 
     name: string, 
@@ -393,6 +410,14 @@ export class PDFGenerator {
     return pdfDoc.save();
   }
 
+  /**
+   * Draw a section header
+   * @param page - The PDF page
+   * @param text - The text to draw
+   * @param font - The font to use
+   * @param x - The x coordinate
+   * @param y - The y coordinate
+   */
   private drawSection(
     page: PDFPage,
     text: string,
@@ -409,6 +434,18 @@ export class PDFGenerator {
     });
   }
 
+  /**
+   * Draw wrapped text
+   * @param page - The PDF page
+   * @param text - The text to draw
+   * @param font - The font to use
+   * @param x - The x coordinate
+   * @param y - The y coordinate
+   * @param size - The size of the text
+   * @param maxWidth - The maximum width of the text
+   * @param pageBreakCallback - The callback to call when a page break is needed
+   * @returns The y coordinate of the text
+   */
   private drawWrappedText(
     page: PDFPage,
     text: string,

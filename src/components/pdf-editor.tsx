@@ -34,6 +34,12 @@ interface PDFEditorProps {
   onRejectSection?: (sectionPath: string) => void;
 }
 
+/**
+ * PDFEditor component for viewing and editing a resume
+ * - Displays a formatted resume with sections for summary, skills, experience, and education
+ * - Shows inline diffs for editable sections when showDiffs is true
+ * - Allows accepting or rejecting changes to editable sections
+ */
 const PDFEditor: React.FC<PDFEditorProps> = ({
   editedResume,
   setEditedResume,

@@ -15,6 +15,7 @@ import {
 // import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import { redirect } from 'next/navigation';
+
 export function Nav() {
   // const pathname = usePathname();
   const { signOut } = useAuth();
@@ -23,6 +24,7 @@ export function Nav() {
     <Sidebar
       variant="floating"
       collapsible="offcanvas"
+      className="bg-background"
     >
       <SidebarContent>
         <SidebarGroup>

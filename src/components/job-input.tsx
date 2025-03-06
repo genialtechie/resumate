@@ -5,6 +5,12 @@ import DOMPurify from 'dompurify';
 import { useCallback, useMemo } from 'react';
 import debounce from 'lodash/debounce';
 
+/**
+ * Job Description Input component
+ * @param jobDescription - The job description
+ * @param setJobDescription - The function to set the job description
+ */
+
 export const JobDescriptionInput = ({
   jobDescription,
   setJobDescription,
