@@ -17,10 +17,13 @@ import {
 } from '@/lib/utils/token-updates';
 
 async function fetchTokens(): Promise<TokenInfo> {
-  const response = await fetch('/api/user/tokens');
+  const response = await fetch('/api/user/tokens', {
+    credentials: 'include',
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch token information');
   }
+
   return response.json();
 }
 
@@ -58,7 +61,9 @@ export function TokenDisplay() {
   if (error || !data)
     return (
       <div className="text-red-500 text-sm">
-        Failed to load token information
+        {error instanceof Error && error.message.includes('Unauthorized')
+          ? 'Session expired. Please refresh the page.'
+          : 'Failed to load token information'}
       </div>
     );
 
