@@ -27,12 +27,13 @@ export async function withTokenCheck<T>(
     // Execute the operation if tokens are available
     const result = await operation();
     
-    // Trigger the token update and ignore the returned data
+    // Trigger a token update on the client side
     await triggerTokenUpdate();
     
     return result;
   } catch (error) {
     // If the operation fails, still trigger the token update
+    // since tokens were already consumed
     await triggerTokenUpdate();
     throw error;
   }

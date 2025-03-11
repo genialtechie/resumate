@@ -16,17 +16,22 @@ import {
   publishTokenUpdate,
 } from '@/lib/utils/token-updates';
 
+/**
+ * Fetch token information
+ * @returns The token information
+ */
 async function fetchTokens(): Promise<TokenInfo> {
-  const response = await fetch('/api/user/tokens', {
-    credentials: 'include',
-  });
+  const response = await fetch('/api/user/tokens');
   if (!response.ok) {
     throw new Error('Failed to fetch token information');
   }
-
   return response.json();
 }
 
+/**
+ * Token Display component
+ * @description This component displays the user's token information.
+ */
 export function TokenDisplay() {
   const queryClient = useQueryClient();
 
@@ -61,9 +66,7 @@ export function TokenDisplay() {
   if (error || !data)
     return (
       <div className="text-red-500 text-sm">
-        {error instanceof Error && error.message.includes('Unauthorized')
-          ? 'Session expired. Please refresh the page.'
-          : 'Failed to load token information'}
+        Failed to load token information
       </div>
     );
 
@@ -87,7 +90,7 @@ export function TokenDisplay() {
                     : percentage > 10
                     ? '#FF9800'
                     : '#F44336',
-                textColor: '#333',
+                textColor: '#fff',
               })}
             />
           </div>
@@ -102,14 +105,14 @@ export function TokenDisplay() {
             remaining of <span className="font-semibold">{total}</span> total
           </p>
           <p className="text-xs text-gray-500">
-            Resets in {formatDistanceToNow(nextReset, { addSuffix: true })}
+            Resets in {formatDistanceToNow(nextReset, { addSuffix: false })}
           </p>
           <div className="pt-1 text-xs">
             Each AI operation costs tokens:
             <ul className="list-disc pl-4 pt-1">
               <li>Resume parse: 1 token</li>
               <li>Cover letter: 2 tokens</li>
-              <li>Resume tailoring: 2 tokens</li>
+              <li>Resume tailoring: 3 tokens</li>
             </ul>
           </div>
         </div>

@@ -1,23 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
-import { TokenService } from '@/lib/utils/token-service';
 
 /**
  * Endpoint for triggering token updates
- * This endpoint fetches the latest token information and returns it
+ * This is a simple endpoint that returns a 200 OK response
  * The client-side code will use this to publish token update events
  */
 export async function POST() {
   try {
-    const userId = await getUserIdFromRequest();
-    const tokens = await TokenService.getUserTokens(userId);
+    // Verify authentication (optional but recommended for security)
+    await getUserIdFromRequest();
     
-    // Return the updated token information
-    return NextResponse.json({ 
-      updated: true, 
-      tokens,
-      timestamp: new Date().toISOString()
-    }, { status: 200 });
+    // Return a success response
+    return NextResponse.json({ updated: true }, { status: 200 });
   } catch (error) {
     console.error('Error processing token update:', error);
 
