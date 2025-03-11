@@ -56,10 +56,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   const getURL = (): string => {
+    // In browser context, use the current window location as the most reliable source of truth
+    if (typeof window !== 'undefined') {
+      const protocol = window.location.protocol;
+      const host = window.location.host; // Includes hostname and port if present
+      return `${protocol}//${host}/`;
+    }
+
+    // Server-side fallback
     let url =
       process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
       process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
       'http://localhost:3000/';
+
     // Make sure to include `https://` when not localhost.
     url = url.startsWith('http') ? url : `https://${url}`;
     // Make sure to include a trailing `/`.
