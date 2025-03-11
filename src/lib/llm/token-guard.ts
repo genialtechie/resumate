@@ -27,7 +27,7 @@ export async function withTokenCheck<T>(
     // Execute the operation if tokens are available
     const result = await operation();
     
-    // Only trigger the token update once
+    // Trigger the token update and ignore the returned data
     await triggerTokenUpdate();
     
     return result;
