@@ -25,7 +25,7 @@ export class ResumeTailor extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, {
       temperature: 0.2,
-      model: 'google/gemini-flash-1.5-8b-exp',
+      model: 'google/gemini-2.0-flash-exp:free',
       response_format: tailoringResponseFormat,
     });
   }

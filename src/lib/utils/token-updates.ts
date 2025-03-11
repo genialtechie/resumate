@@ -44,8 +44,16 @@ export function publishTokenUpdate(): void {
  */
 export async function triggerTokenUpdate(): Promise<void> {
   try {
-    // Make a call to a simple API endpoint that will publish the update
-    await fetch('/api/user/tokens/update', { method: 'POST' });
+    if (typeof window === 'undefined') {
+      // Server-side: skip fetch request and just publish the update directly
+      publishTokenUpdate();
+    } else {
+      // Client-side: make API call with credentials
+      await fetch('/api/user/tokens/update', { 
+        method: 'POST',
+        credentials: 'include'
+      });
+    }
   } catch (error) {
     console.error('Failed to trigger token update:', error);
   }

@@ -22,7 +22,7 @@ import {
   addEducationEntry as addEducationEntryHelper,
   deleteEducationEntry as deleteEducationEntryHelper,
 } from '@/lib/utils/editor-helpers';
-import InlineDiffEditor from '@/components/inline-diff-editor';
+import InlineDiffEditor from '@/components/dashboard/inline-diff-editor';
 import { hasTextDifferences } from '@/lib/utils/diff-utils';
 
 interface PDFEditorProps {
@@ -173,15 +173,19 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
   );
 
   if (!editedResume) {
-    return <div className="text-center py-4">No resume data available</div>;
+    return (
+      <div className="text-center py-4 text-slate-100">
+        No resume data available
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl md:max-w-4xl mx-auto p-6 md:p-12 bg-white border shadow-md font-serif">
+    <div className="max-w-3xl md:max-w-4xl mx-auto p-6 md:p-12 bg-deepBlue/90 border border-slate-700 shadow-lg rounded-md font-sans text-slate-100">
       {/* Header Section */}
       <div className="mb-8">
         <div
-          className="text-3xl font-bold mb-2 outline-none"
+          className="text-3xl font-bold mb-2 outline-none text-slate-100 pl-0"
           contentEditable
           suppressContentEditableWarning
           onBlur={(e) => handleFieldBlur('name', e.currentTarget.innerText)}
@@ -189,7 +193,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
           {editedResume.name}
         </div>
         <div
-          className="text-lg mb-2 outline-none"
+          className="text-lg mb-2 outline-none text-slate-100 pl-0"
           contentEditable
           suppressContentEditableWarning
           onBlur={(e) => handleFieldBlur('location', e.currentTarget.innerText)}
@@ -199,23 +203,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
         <div
           contentEditable
           suppressContentEditableWarning
-          className="p-3 outline-none text-gray-600 flex-1"
+          className="p-3 pl-0 outline-none text-slate-100 flex-1"
           onBlur={(e) => handleContactBlur(e.currentTarget.innerText)}
         >
-          {editedResume.contact.email} | {editedResume.contact.phone} |{' '}
-          {editedResume.contact.linkedin == ''
-            ? editedResume.contact.website == ''
-              ? 'No contact info'
-              : editedResume.contact.website
-            : editedResume.contact.linkedin}
+          {editedResume.contact.email || 'your.email@example.com'} |{' '}
+          {editedResume.contact.phone || '(555) 123-4567'} |{' '}
+          {editedResume.contact.linkedin
+            ? editedResume.contact.linkedin
+            : editedResume.contact.website
+            ? editedResume.contact.website
+            : 'your-website.com'}
         </div>
       </div>
 
       {/* Summary Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
-          Summary
-        </h2>
+        <h2 className="text-xl font-semibold mb-2 text-slate-100">Summary</h2>
         {showDiffs &&
         originalResume &&
         hasTextDifferences(originalResume.summary, editedResume.summary) ? (
@@ -225,11 +228,11 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
             onSave={(value) => handleFieldBlur('summary', value)}
             onAccept={() => onAcceptSection?.('summary')}
             onReject={() => onRejectSection?.('summary')}
-            className="p-3 w-full min-h-[100px]"
+            className="p-3 w-full min-h-[100px] pl-0"
           />
         ) : (
           <div
-            className="p-3 outline-none"
+            className="p-3 pl-0 outline-none"
             contentEditable
             suppressContentEditableWarning
             onBlur={(e) =>
@@ -243,9 +246,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Skills Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
-          Skills
-        </h2>
+        <h2 className="text-xl font-semibold mb-2 text-slate-100">Skills</h2>
         {showDiffs &&
         originalResume &&
         hasTextDifferences(
@@ -258,11 +259,11 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
             onSave={(value) => handleSkillsBlur(value)}
             onAccept={() => onAcceptSection?.('skills')}
             onReject={() => onRejectSection?.('skills')}
-            className="p-3 w-full"
+            className="p-3 pl-0 w-full"
           />
         ) : (
           <div
-            className="p-3 outline-none"
+            className="p-3 pl-0 outline-none"
             contentEditable
             suppressContentEditableWarning
             onBlur={(e) => handleSkillsBlur(e.currentTarget.innerText)}
@@ -274,14 +275,14 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Experience Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
+        <h2 className="text-xl font-semibold mb-2 text-slate-100">
           Experience
         </h2>
         {editedResume.experience.length > 0 ? (
           editedResume.experience.map((exp, expIdx) => (
             <div
               key={expIdx}
-              className="mb-6 p-3 relative group/entry"
+              className="mb-6 p-3 relative group/entry rounded-md"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-grow">
@@ -303,14 +304,13 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       onReject={() =>
                         onRejectSection?.(`experience.${expIdx}.company`)
                       }
-                      className="font-bold text-lg"
+                      className="font-bold text-lg mb-1"
                     />
                   ) : (
                     <div
-                      className="font-bold text-lg outline-none"
+                      className="font-bold text-lg mb-1 outline-none"
                       contentEditable
                       suppressContentEditableWarning
-                      title="Company"
                       onBlur={(e) =>
                         handleExperienceBlur(
                           expIdx,
@@ -323,89 +323,92 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     </div>
                   )}
 
-                  {showDiffs &&
-                  originalResume?.experience?.[expIdx] &&
-                  hasTextDifferences(
-                    originalResume.experience[expIdx]?.title || '',
-                    exp.title
-                  ) ? (
-                    <InlineDiffEditor
-                      oldText={originalResume.experience[expIdx]?.title || ''}
-                      newText={exp.title}
-                      onSave={(value) =>
-                        handleExperienceBlur(expIdx, 'title', value)
-                      }
-                      onAccept={() =>
-                        onAcceptSection?.(`experience.${expIdx}.title`)
-                      }
-                      onReject={() =>
-                        onRejectSection?.(`experience.${expIdx}.title`)
-                      }
-                      className="italic text-base"
-                    />
-                  ) : (
-                    <div
-                      className="italic text-base outline-none"
-                      contentEditable
-                      suppressContentEditableWarning
-                      title="Role"
-                      onBlur={(e) =>
-                        handleExperienceBlur(
-                          expIdx,
-                          'title',
-                          e.currentTarget.innerText
-                        )
-                      }
-                    >
-                      {exp.title}
+                  <div className="flex justify-between text-sm mb-2">
+                    <div className="flex flex-col sm:flex-row sm:gap-2">
+                      {showDiffs &&
+                      originalResume?.experience?.[expIdx] &&
+                      hasTextDifferences(
+                        originalResume.experience[expIdx]?.title || '',
+                        exp.title
+                      ) ? (
+                        <InlineDiffEditor
+                          oldText={
+                            originalResume.experience[expIdx]?.title || ''
+                          }
+                          newText={exp.title}
+                          onSave={(value) =>
+                            handleExperienceBlur(expIdx, 'title', value)
+                          }
+                          onAccept={() =>
+                            onAcceptSection?.(`experience.${expIdx}.title`)
+                          }
+                          onReject={() =>
+                            onRejectSection?.(`experience.${expIdx}.title`)
+                          }
+                        />
+                      ) : (
+                        <div
+                          className="italic outline-none"
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) =>
+                            handleExperienceBlur(
+                              expIdx,
+                              'title',
+                              e.currentTarget.innerText
+                            )
+                          }
+                        >
+                          {exp.title}
+                        </div>
+                      )}
                     </div>
-                  )}
 
-                  {showDiffs &&
-                  originalResume?.experience?.[expIdx] &&
-                  hasTextDifferences(
-                    originalResume.experience[expIdx]?.dates || '',
-                    exp.dates
-                  ) ? (
-                    <InlineDiffEditor
-                      oldText={originalResume.experience[expIdx]?.dates || ''}
-                      newText={exp.dates}
-                      onSave={(value) =>
-                        handleExperienceBlur(expIdx, 'dates', value)
-                      }
-                      onAccept={() =>
-                        onAcceptSection?.(`experience.${expIdx}.dates`)
-                      }
-                      onReject={() =>
-                        onRejectSection?.(`experience.${expIdx}.dates`)
-                      }
-                      className="text-sm text-gray-600"
-                    />
-                  ) : (
-                    <div
-                      className="text-sm text-gray-600 outline-none"
-                      contentEditable
-                      suppressContentEditableWarning
-                      title="Dates"
-                      onBlur={(e) =>
-                        handleExperienceBlur(
-                          expIdx,
-                          'dates',
-                          e.currentTarget.innerText
-                        )
-                      }
-                    >
-                      {exp.dates}
-                    </div>
-                  )}
+                    {showDiffs &&
+                    originalResume?.experience?.[expIdx] &&
+                    hasTextDifferences(
+                      originalResume.experience[expIdx]?.dates || '',
+                      exp.dates
+                    ) ? (
+                      <InlineDiffEditor
+                        oldText={originalResume.experience[expIdx]?.dates || ''}
+                        newText={exp.dates}
+                        onSave={(value) =>
+                          handleExperienceBlur(expIdx, 'dates', value)
+                        }
+                        onAccept={() =>
+                          onAcceptSection?.(`experience.${expIdx}.dates`)
+                        }
+                        onReject={() =>
+                          onRejectSection?.(`experience.${expIdx}.dates`)
+                        }
+                      />
+                    ) : (
+                      <div
+                        className="outline-none"
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) =>
+                          handleExperienceBlur(
+                            expIdx,
+                            'dates',
+                            e.currentTarget.innerText
+                          )
+                        }
+                      >
+                        {exp.dates}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100">
+
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100 group-focus-within/entry:opacity-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="h-6 w-6 hover:bg-slate-800/60 text-featureBlue focus:outline-none"
                         onClick={() => addExperienceEntry()}
                         aria-label="Add experience entry"
                         tabIndex={0}
@@ -429,7 +432,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="h-6 w-6 hover:bg-red-950/50 hover:text-red-400 text-red-500/80 focus:outline-none"
                         onClick={() => deleteExperienceEntry(expIdx)}
                         aria-label={`Delete experience entry for ${exp.company}`}
                         tabIndex={0}
@@ -449,24 +452,25 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                   </Tooltip>
                 </div>
               </div>
-              <div className="mt-2">
+
+              <ul className="list-disc pl-5 space-y-2">
                 {exp.details.map((detail, detailIdx) => (
-                  <div
-                    key={`${expIdx}-${detailIdx}`}
-                    className="flex items-start group relative hover:bg-gray-50/50 rounded px-2 py-1"
+                  <li
+                    key={detailIdx}
+                    className="group/detail relative ml-0 pl-0"
                   >
-                    <span className="mr-2 text-gray-500 select-none">•</span>
                     {showDiffs &&
-                    originalResume &&
-                    originalResume.experience[expIdx] &&
+                    originalResume?.experience?.[expIdx]?.details?.[
+                      detailIdx
+                    ] &&
                     hasTextDifferences(
-                      originalResume.experience[expIdx]?.details[detailIdx] ||
+                      originalResume.experience[expIdx]?.details?.[detailIdx] ||
                         '',
                       detail
                     ) ? (
                       <InlineDiffEditor
                         oldText={
-                          originalResume.experience[expIdx]?.details[
+                          originalResume.experience[expIdx]?.details?.[
                             detailIdx
                           ] || ''
                         }
@@ -484,11 +488,10 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                             `experience.${expIdx}.details.${detailIdx}`
                           )
                         }
-                        className="flex-1 min-h-[1.5rem]"
                       />
                     ) : (
                       <div
-                        className="outline-none flex-1 min-h-[1.5rem]"
+                        className="inline outline-none"
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
@@ -511,64 +514,47 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                         {detail}
                       </div>
                     )}
-                    <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 absolute -right-8 sm:-right-14 top-1/2 -translate-y-1/2">
+
+                    <div className="inline-flex gap-1 items-center opacity-0 group-hover/detail:opacity-100 group-focus-within/detail:opacity-100 focus-within:opacity-100 ml-2 align-middle">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="detail-button h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            onClick={() => {
-                              addExperienceDetail(expIdx, detailIdx);
-                            }}
-                            aria-label="Add bullet point"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                addExperienceDetail(expIdx, detailIdx);
-                              }
-                            }}
+                          <button
+                            className="text-featureBlue hover:text-featureBlue/80 p-1 rounded-full hover:bg-slate-800"
+                            onClick={() =>
+                              addExperienceDetail(expIdx, detailIdx)
+                            }
+                            title="Add detail"
                           >
                             <Plus className="h-4 w-4" />
-                          </Button>
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="font-sans">Add bullet point below</p>
+                          <p>Add bullet point below</p>
                         </TooltipContent>
                       </Tooltip>
 
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="detail-button h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          <button
+                            className="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-red-950/50"
                             onClick={() =>
                               deleteExperienceDetail(expIdx, detailIdx)
                             }
-                            aria-label="Delete bullet point"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                deleteExperienceDetail(expIdx, detailIdx);
-                              }
-                            }}
+                            title="Delete detail"
                           >
                             <Trash2 className="h-4 w-4" />
-                          </Button>
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="font-sans">Delete bullet point</p>
+                          <p>Delete bullet point</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                  </div>
+                  </li>
                 ))}
                 {exp.details.length === 0 && (
                   <div
-                    className="flex items-start px-2 py-1 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
+                    className="flex items-start px-0 py-1 text-slate-100 italic cursor-pointer hover:bg-slate-800/30 focus:outline-none rounded"
                     onClick={() => addExperienceDetail(expIdx, -1)}
                     role="button"
                     tabIndex={0}
@@ -584,12 +570,12 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     Add details...
                   </div>
                 )}
-              </div>
+              </ul>
             </div>
           ))
         ) : (
           <div
-            className="p-3 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
+            className="p-3 text-slate-100 italic cursor-pointer focus:outline-none rounded"
             onClick={addExperienceEntry}
             role="button"
             tabIndex={0}
@@ -608,35 +594,35 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
       {/* Education Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 border-b-2 border-black">
-          Education
-        </h2>
+        <h2 className="text-xl font-semibold mb-2 text-slate-100">Education</h2>
         {editedResume.education.length > 0 ? (
-          editedResume.education.map((edu, idx) => (
+          editedResume.education.map((edu, eduIdx) => (
             <div
-              key={idx}
-              className="mb-6 p-3 relative group/entry"
+              key={eduIdx}
+              className="mb-6 p-3 relative group/entry rounded-md"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-grow">
                   {showDiffs &&
                   originalResume &&
-                  originalResume.education[idx] &&
+                  originalResume.education[eduIdx] &&
                   hasTextDifferences(
-                    originalResume.education[idx]?.institution || '',
+                    originalResume.education[eduIdx]?.institution || '',
                     edu.institution
                   ) ? (
                     <InlineDiffEditor
-                      oldText={originalResume.education[idx]?.institution || ''}
+                      oldText={
+                        originalResume.education[eduIdx]?.institution || ''
+                      }
                       newText={edu.institution}
                       onSave={(value) =>
-                        handleEducationBlur(idx, 'institution', value)
+                        handleEducationBlur(eduIdx, 'institution', value)
                       }
                       onAccept={() =>
-                        onAcceptSection?.(`education.${idx}.institution`)
+                        onAcceptSection?.(`education.${eduIdx}.institution`)
                       }
                       onReject={() =>
-                        onRejectSection?.(`education.${idx}.institution`)
+                        onRejectSection?.(`education.${eduIdx}.institution`)
                       }
                       className="font-bold text-lg"
                     />
@@ -647,7 +633,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       suppressContentEditableWarning
                       onBlur={(e) =>
                         handleEducationBlur(
-                          idx,
+                          eduIdx,
                           'institution',
                           e.currentTarget.innerText
                         )
@@ -659,22 +645,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
                   {showDiffs &&
                   originalResume &&
-                  originalResume.education[idx] &&
+                  originalResume.education[eduIdx] &&
                   hasTextDifferences(
-                    originalResume.education[idx]?.degree || '',
+                    originalResume.education[eduIdx]?.degree || '',
                     edu.degree
                   ) ? (
                     <InlineDiffEditor
-                      oldText={originalResume.education[idx]?.degree || ''}
+                      oldText={originalResume.education[eduIdx]?.degree || ''}
                       newText={edu.degree}
                       onSave={(value) =>
-                        handleEducationBlur(idx, 'degree', value)
+                        handleEducationBlur(eduIdx, 'degree', value)
                       }
                       onAccept={() =>
-                        onAcceptSection?.(`education.${idx}.degree`)
+                        onAcceptSection?.(`education.${eduIdx}.degree`)
                       }
                       onReject={() =>
-                        onRejectSection?.(`education.${idx}.degree`)
+                        onRejectSection?.(`education.${eduIdx}.degree`)
                       }
                       className="italic"
                     />
@@ -685,7 +671,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       suppressContentEditableWarning
                       onBlur={(e) =>
                         handleEducationBlur(
-                          idx,
+                          eduIdx,
                           'degree',
                           e.currentTarget.innerText
                         )
@@ -697,22 +683,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
                   {showDiffs &&
                   originalResume &&
-                  originalResume.education[idx] &&
+                  originalResume.education[eduIdx] &&
                   hasTextDifferences(
-                    originalResume.education[idx]?.dates || '',
+                    originalResume.education[eduIdx]?.dates || '',
                     edu.dates
                   ) ? (
                     <InlineDiffEditor
-                      oldText={originalResume.education[idx]?.dates || ''}
+                      oldText={originalResume.education[eduIdx]?.dates || ''}
                       newText={edu.dates}
                       onSave={(value) =>
-                        handleEducationBlur(idx, 'dates', value)
+                        handleEducationBlur(eduIdx, 'dates', value)
                       }
                       onAccept={() =>
-                        onAcceptSection?.(`education.${idx}.dates`)
+                        onAcceptSection?.(`education.${eduIdx}.dates`)
                       }
                       onReject={() =>
-                        onRejectSection?.(`education.${idx}.dates`)
+                        onRejectSection?.(`education.${eduIdx}.dates`)
                       }
                       className="text-sm text-gray-600"
                     />
@@ -723,7 +709,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       suppressContentEditableWarning
                       onBlur={(e) =>
                         handleEducationBlur(
-                          idx,
+                          eduIdx,
                           'dates',
                           e.currentTarget.innerText
                         )
@@ -735,22 +721,22 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
 
                   {showDiffs &&
                   originalResume &&
-                  originalResume.education[idx] &&
+                  originalResume.education[eduIdx] &&
                   hasTextDifferences(
-                    originalResume.education[idx]?.location || '',
+                    originalResume.education[eduIdx]?.location || '',
                     edu.location
                   ) ? (
                     <InlineDiffEditor
-                      oldText={originalResume.education[idx]?.location || ''}
+                      oldText={originalResume.education[eduIdx]?.location || ''}
                       newText={edu.location}
                       onSave={(value) =>
-                        handleEducationBlur(idx, 'location', value)
+                        handleEducationBlur(eduIdx, 'location', value)
                       }
                       onAccept={() =>
-                        onAcceptSection?.(`education.${idx}.location`)
+                        onAcceptSection?.(`education.${eduIdx}.location`)
                       }
                       onReject={() =>
-                        onRejectSection?.(`education.${idx}.location`)
+                        onRejectSection?.(`education.${eduIdx}.location`)
                       }
                       className="text-sm text-gray-600"
                     />
@@ -761,7 +747,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       suppressContentEditableWarning
                       onBlur={(e) =>
                         handleEducationBlur(
-                          idx,
+                          eduIdx,
                           'location',
                           e.currentTarget.innerText
                         )
@@ -771,13 +757,13 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100">
+                <div className="flex flex-col-reverse sm:flex-row gap-1 opacity-0 group-hover/entry:opacity-100 focus-within:opacity-100 group-focus-within/entry:opacity-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="h-6 w-6 hover:bg-slate-800/60 text-featureBlue focus:outline-none"
                         onClick={() => addEducationEntry()}
                         aria-label="Add education entry"
                         tabIndex={0}
@@ -801,14 +787,14 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-red-100 hover:text-red-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        onClick={() => deleteEducationEntry(idx)}
+                        className="h-6 w-6 hover:bg-red-950/50 hover:text-red-400 text-red-500/80 focus:outline-none"
+                        onClick={() => deleteEducationEntry(eduIdx)}
                         aria-label={`Delete education entry for ${edu.institution}`}
                         tabIndex={0}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            deleteEducationEntry(idx);
+                            deleteEducationEntry(eduIdx);
                           }
                         }}
                       >
@@ -825,7 +811,7 @@ const PDFEditor: React.FC<PDFEditorProps> = ({
           ))
         ) : (
           <div
-            className="p-3 text-gray-400 italic cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
+            className="p-3 text-slate-100 italic cursor-pointer focus:outline-none rounded"
             onClick={addEducationEntry}
             role="button"
             tabIndex={0}

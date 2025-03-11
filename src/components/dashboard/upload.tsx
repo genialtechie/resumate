@@ -1,6 +1,6 @@
 'use client';
 
-import { Upload, FileIcon, X } from 'lucide-react';
+import { Upload, FileIcon, X, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button';
  * Upload Zone component
  * @description This component is used to upload a resume file.
  * @param onFileChange - The function to call when a file is uploaded
+ * @param isPending - Whether the file is being uploaded
  */
-export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
+export const UploadZone = ({ onFileChange, isPending }: UploadZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -50,7 +51,7 @@ export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
     onFileChange(file);
     toast({
       title: 'File received',
-      description: 'Your file has been successfully uploaded',
+      description: 'Your file has been uploaded for parsing',
     });
   };
 
@@ -70,6 +71,15 @@ export const UploadZone = ({ onFileChange }: UploadZoneProps) => {
       openFileSelector(e);
     }
   };
+
+  if (isPending) {
+    return (
+      <div className="flex flex-row items-center justify-around w-full rounded-lg border-2 border-dashed p-8 transition-all duration-200 ease-in-out">
+        <Loader2 className="h-10 w-10 animate-spin" />
+        <p className="text-sm font-medium">Parsing your resume...</p>
+      </div>
+    );
+  }
 
   return (
     <>

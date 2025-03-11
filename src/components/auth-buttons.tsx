@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import { Github, Mail } from 'lucide-react';
+import { Github, Mail, LogIn } from 'lucide-react';
 
 /**
  * Auth Buttons component
@@ -36,24 +36,32 @@ export default function AuthButtons() {
   };
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-4">
       <Button
-        variant="outline"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
-        className="w-full"
+        className="w-full group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105"
       >
-        <Mail className="mr-2 h-4 w-4" />
-        Continue with Google
+        <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
+          <div className="flex items-center">
+            <Mail className="mr-4 h-4 w-4 text-featureBlue" />
+            Continue with Google
+          </div>
+          <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+        </span>
       </Button>
       <Button
-        variant="outline"
         onClick={handleGithubSignIn}
         disabled={isLoading}
-        className="w-full"
+        className="w-full group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105"
       >
-        <Github className="mr-2 h-4 w-4" />
-        Continue with GitHub
+        <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
+          <div className="flex items-center">
+            <Github className="mr-4 h-4 w-4 text-featureBlue" />
+            Continue with GitHub
+          </div>
+          <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+        </span>
       </Button>
     </div>
   );

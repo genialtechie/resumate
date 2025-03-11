@@ -37,17 +37,21 @@ export default function AuthDialog({ trigger, className }: AuthDialogProps) {
         <DialogTrigger asChild>
           <Button
             size="lg"
-            className={`bg-primary hover:bg-primary-hover text-white px-8 py-4 ${className}`}
+            className={`group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105 ${className}`}
           >
-            <LogIn className="mr-2 h-4 w-4" />
-            Get Started
+            <span className="bg-blue-gradient bg-clip-text text-transparent uppercase font-bold text-xl transition-opacity duration-300 group-hover:opacity-80">
+              Get Started
+            </span>
+            <LogIn className="ml-2 h-4 w-4 text-featureBlue font-bold transition-all duration-300 group-hover:translate-x-1" />
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-black/90 backdrop-blur-sm border-slate-800">
         <DialogHeader>
-          <DialogTitle>Sign in to qualifies.me</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">
+            Sign in to qualifies.me
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
             Sign in to your account to access all features and manage your
             resumes.
           </DialogDescription>

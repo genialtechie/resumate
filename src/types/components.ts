@@ -2,6 +2,7 @@ import { ResumeContentObject } from '@/types';
 
 export interface UploadZoneProps {
   onFileChange: (file: File | null) => void;
+  isPending?: boolean;
 }
 
 export interface JobDescriptionInputProps {

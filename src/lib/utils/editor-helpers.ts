@@ -33,13 +33,35 @@ export const handleContactBlur = (
   setEditedResume: (resume: ResumeContentObject) => void,
   value: string
 ) => {
-  // Expect contact info in the format "email | phone | linkedin"
-  const [email = '', phone = '', linkedin = ''] = value
+  // Expect contact info in the format "email | phone | website/linkedin"
+  const [emailInput = '', phoneInput = '', websiteOrLinkedIn = ''] = value
     .split('|')
     .map((s) => s.trim());
+    
+  // Filter out placeholder values
+  const email = emailInput === 'your.email@example.com' ? '' : emailInput;
+  const phone = phoneInput === '(555) 123-4567' ? '' : phoneInput;
+  
+  // Determine if the third field is a LinkedIn URL or website
+  let linkedin = '';
+  let website = '';
+  
+  if (websiteOrLinkedIn && websiteOrLinkedIn !== 'your-website.com') {
+    if (websiteOrLinkedIn.includes('linkedin.com')) {
+      linkedin = websiteOrLinkedIn;
+    } else {
+      website = websiteOrLinkedIn;
+    }
+  }
+  
   setEditedResume({
     ...editedResume,
-    contact: { email, phone, linkedin },
+    contact: { 
+      email, 
+      phone, 
+      linkedin,
+      website
+    },
   });
 };
 

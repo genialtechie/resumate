@@ -73,41 +73,45 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
   });
 
   return (
-    <div className="max-w-3xl md:max-w-4xl mx-auto p-6 bg-white border shadow-md">
-      <div className="font-serif text-base leading-relaxed mb-8">
+    <div className="max-w-3xl md:max-w-4xl mx-auto p-6 md:p-12 bg-deepBlue/90 border border-slate-700 shadow-lg rounded-md font-sans text-slate-100">
+      <div className="font-sans text-base leading-relaxed mb-8">
         {/* Header with name and contact info */}
         <div className="mb-4">
-          <p className="text-lg font-bold">{name || 'Your Name'}</p>
-          <p>{contact.email || 'your.email@example.com'}</p>
-          <p>{contact.phone || '(123) 456-7890'}</p>
-          {contact.linkedin && <p>{contact.linkedin}</p>}
-          {contact.website && <p>{contact.website}</p>}
+          <p className="text-3xl font-bold mb-2">{name || 'Your Name'}</p>
+          <p className="text-lg mb-1">
+            {contact.email || 'your.email@example.com'}
+          </p>
+          <p className="text-lg mb-1">{contact.phone || '(123) 456-7890'}</p>
+          {contact.linkedin && (
+            <p className="text-lg mb-1">{contact.linkedin}</p>
+          )}
+          {contact.website && <p className="text-lg mb-1">{contact.website}</p>}
         </div>
 
         {/* Date */}
         <div className="mb-4">
-          <p>{formattedDate}</p>
+          <p className="text-lg">{formattedDate}</p>
         </div>
 
         {/* Recipient (placeholder) */}
         <div className="mb-4">
-          <p>To Whom It May Concern,</p>
+          <p className="text-lg">To Whom It May Concern,</p>
         </div>
       </div>
 
       {/* Editable content */}
       <div
         ref={editorRef}
-        className="min-h-[400px] rounded-lg font-serif text-base leading-relaxed outline-none"
+        className="min-h-[400px] font-sans text-base leading-relaxed outline-none text-slate-100"
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
       />
 
       {/* Closing */}
-      <div className="font-serif text-base leading-relaxed mt-6">
-        <p className="mb-0">Sincerely,</p>
-        <p className="font-bold">{name || 'Your Name'}</p>
+      <div className="font-sans text-base leading-relaxed mt-6">
+        <p className="mb-2 text-lg">Sincerely,</p>
+        <p className="text-lg font-bold">{name || 'Your Name'}</p>
       </div>
     </div>
   );

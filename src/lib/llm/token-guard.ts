@@ -1,6 +1,6 @@
 import { TokenService, TokenLimitError } from '@/lib/utils/token-service';
 import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
-import { triggerTokenUpdate } from '@/lib/utils/token-updates';
+import { triggerTokenUpdate, publishTokenUpdate } from '@/lib/utils/token-updates';
 
 /**
  * Higher-order function that wraps LLM operations with token checking
@@ -27,14 +27,16 @@ export async function withTokenCheck<T>(
     // Execute the operation if tokens are available
     const result = await operation();
     
-    // Trigger a token update on the client side
+    // Trigger a token update on the client side and publish to all subscribers
     await triggerTokenUpdate();
+    publishTokenUpdate();
     
     return result;
   } catch (error) {
     // If the operation fails, still trigger the token update
     // since tokens were already consumed
     await triggerTokenUpdate();
+    publishTokenUpdate();
     throw error;
   }
 }

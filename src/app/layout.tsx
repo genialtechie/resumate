@@ -1,20 +1,22 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Suspense } from 'react';
+import localFont from 'next/font/local';
+import { Bricolage_Grotesque } from 'next/font/google';
+// import { cn } from '@/lib/utils';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+const satoshi = localFont({
+  src: './fonts/satoshi/Satoshi-Variable.woff2',
+  variable: '--font-satoshi',
   display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
+  variable: '--font-bricolage',
   display: 'swap',
 });
 
@@ -96,15 +98,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html
+      lang="en"
+      className="dark"
+    >
+      <body className={`${satoshi.variable} ${bricolage.variable}`}>
         <Providers>
           <Suspense
             fallback={
-              <div className="min-h-screen flex items-center justify-center">
-                Loading...
+              <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             }
           >

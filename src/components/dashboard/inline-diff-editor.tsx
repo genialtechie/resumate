@@ -98,7 +98,7 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
       <div className={cn('relative group', className)}>
         <div
           ref={contentRef}
-          className="p-3 min-w-full outline-none focus:outline-none"
+          className="p-3 min-w-full outline-none focus:outline-none text-slate-100"
           style={{ minHeight }}
           contentEditable={!readOnly}
           suppressContentEditableWarning={true}
@@ -116,16 +116,16 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
       <div className={cn('relative group pt-10', className)}>
         {/* Accept/Reject buttons for diff view */}
         {hasDifferences && !readOnly && (
-          <div className="absolute right-2 top-2 z-20 flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1 rounded shadow-sm">
+          <div className="absolute right-2 top-2 z-20 flex items-center gap-1 bg-slate-900/70 backdrop-blur-sm p-1 rounded shadow-sm border border-slate-700">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 hover:bg-green-50 border border-gray-100"
+                  className="h-7 w-7 hover:bg-green-800/50 border border-slate-800"
                   onClick={handleAcceptChanges}
                 >
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check className="h-4 w-4 text-green-400" />
                 </Button>
               </TooltipTrigger>
               {showTooltips && (
@@ -140,10 +140,10 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 hover:bg-red-50 border border-gray-100"
+                  className="h-7 w-7 hover:bg-red-800/50 border border-slate-800"
                   onClick={handleRejectChanges}
                 >
-                  <X className="h-4 w-4 text-red-500" />
+                  <X className="h-4 w-4 text-red-400" />
                 </Button>
               </TooltipTrigger>
               {showTooltips && (
@@ -158,7 +158,7 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
         {/* Editable Diff content*/}
         <div
           ref={contentRef}
-          className="p-3 min-w-full outline-none focus:outline-none"
+          className="p-3 min-w-full outline-none focus:outline-none text-slate-100"
           style={{ minHeight }}
           contentEditable={!readOnly}
           suppressContentEditableWarning={true}
@@ -168,8 +168,9 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
             <span
               key={i}
               className={cn(
-                part.added && 'text-green-600 font-medium bg-green-50',
-                part.removed && 'line-through text-red-500 bg-red-50 opacity-70'
+                part.added && 'text-green-400 font-medium bg-green-950/50',
+                part.removed &&
+                  'line-through text-red-400 bg-red-950/50 opacity-70'
               )}
             >
               {part.value}

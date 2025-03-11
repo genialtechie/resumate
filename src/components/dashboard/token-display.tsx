@@ -11,10 +11,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useEffect } from 'react';
-import {
-  subscribeToTokenUpdates,
-  publishTokenUpdate,
-} from '@/lib/utils/token-updates';
+import { subscribeToTokenUpdates } from '@/lib/utils/token-updates';
 
 /**
  * Fetch token information
@@ -38,7 +35,8 @@ export function TokenDisplay() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['user-tokens'],
     queryFn: fetchTokens,
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Set up listener for token updates
@@ -48,9 +46,6 @@ export function TokenDisplay() {
       // Invalidate and refetch when tokens are updated
       queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
     });
-
-    // Set up event listener for the custom event
-    publishTokenUpdate();
 
     // Clean up the listener when component unmounts
     return () => {
@@ -90,7 +85,7 @@ export function TokenDisplay() {
                     : percentage > 10
                     ? '#FF9800'
                     : '#F44336',
-                textColor: '#333',
+                textColor: '#fff',
               })}
             />
           </div>
@@ -105,14 +100,14 @@ export function TokenDisplay() {
             remaining of <span className="font-semibold">{total}</span> total
           </p>
           <p className="text-xs text-gray-500">
-            Resets in {formatDistanceToNow(nextReset, { addSuffix: true })}
+            Resets in {formatDistanceToNow(nextReset, { addSuffix: false })}
           </p>
           <div className="pt-1 text-xs">
             Each AI operation costs tokens:
             <ul className="list-disc pl-4 pt-1">
               <li>Resume parse: 1 token</li>
               <li>Cover letter: 2 tokens</li>
-              <li>Resume tailoring: 2 tokens</li>
+              <li>Resume tailoring: 3 tokens</li>
             </ul>
           </div>
         </div>

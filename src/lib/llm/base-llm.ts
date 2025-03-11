@@ -46,9 +46,7 @@ export abstract class BaseLLMService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
-          'HTTP-Referer':
-            process.env.NEXT_PUBLIC_GITHUB_REPO ||
-            'https://github.com/yourusername/resumate',
+          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://qualifies.me',
           'X-Title': 'qualifies',
           'User-Agent': 'qualifies/1.0.0',
         },
@@ -86,7 +84,7 @@ export abstract class BaseLLMService {
           finish_reason?: string;
           native_finish_reason?: string;
         }>;
-        error?: { message: string };
+        error?: { message: string; metadata?: { raw?: string } };
       };
       try {
         data = JSON.parse(responseData);
@@ -98,8 +96,10 @@ export abstract class BaseLLMService {
       }
 
       if (data.error) {
+        // Include raw error message from provider if available
+        const errorMessage = data.error.metadata?.raw || data.error.message;
         throw new LLMError(
-          `OpenRouter API returned an error: ${data.error.message}`,
+          `OpenRouter API returned an error: ${errorMessage}`,
           data.error
         );
       }
