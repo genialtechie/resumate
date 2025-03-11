@@ -49,10 +49,20 @@ export async function triggerTokenUpdate(): Promise<void> {
       publishTokenUpdate();
     } else {
       // Client-side: make API call with credentials
-      await fetch('/api/user/tokens/update', { 
+      const response = await fetch('/api/user/tokens/update', { 
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      
+      // Check response and call publishTokenUpdate only if successful
+      if (response.ok) {
+        publishTokenUpdate();
+      } else {
+        console.error('Token update failed:', await response.text());
+      }
     }
   } catch (error) {
     console.error('Failed to trigger token update:', error);
