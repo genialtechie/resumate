@@ -122,10 +122,10 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 hover:bg-green-800/50 border border-slate-800"
+                  className="h-7 w-7 hover:bg-emerald-950 border border-slate-800"
                   onClick={handleAcceptChanges}
                 >
-                  <Check className="h-4 w-4 text-green-400" />
+                  <Check className="h-4 w-4 text-emerald-400" />
                 </Button>
               </TooltipTrigger>
               {showTooltips && (
@@ -140,10 +140,10 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 hover:bg-red-800/50 border border-slate-800"
+                  className="h-7 w-7 hover:bg-rose-950 border border-slate-800"
                   onClick={handleRejectChanges}
                 >
-                  <X className="h-4 w-4 text-red-400" />
+                  <X className="h-4 w-4 text-rose-400" />
                 </Button>
               </TooltipTrigger>
               {showTooltips && (
@@ -168,9 +168,9 @@ const InlineDiffEditor: React.FC<InlineDiffEditorProps> = ({
             <span
               key={i}
               className={cn(
-                part.added && 'text-green-400 font-medium bg-green-950/50',
+                part.added && 'text-emerald-300 font-medium bg-emerald-950/60',
                 part.removed &&
-                  'line-through text-red-400 bg-red-950/50 opacity-70'
+                  'line-through text-rose-300 bg-rose-950/60 opacity-80'
               )}
             >
               {part.value}

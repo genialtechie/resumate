@@ -66,18 +66,18 @@ export function ResumeTailor({
                         key={index}
                         className={cn(
                           'p-3 rounded-lg flex items-start gap-3',
-                          isMissing ? 'bg-destructive/10' : 'bg-emerald-500/10'
+                          isMissing ? 'bg-rose-950/30' : 'bg-emerald-950/30'
                         )}
                       >
                         {isMissing ? (
-                          <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                          <XCircle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
                         ) : (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                         )}
                         <span
                           className={cn(
                             'text-sm',
-                            isMissing ? 'text-destructive' : 'text-emerald-700'
+                            isMissing ? 'text-rose-300' : 'text-emerald-300'
                           )}
                         >
                           {req}
@@ -98,7 +98,7 @@ export function ResumeTailor({
                         key={index}
                         variant="secondary"
                         className={cn(
-                          'bg-destructive/10 text-destructive hover:bg-destructive/20',
+                          'bg-rose-950/30 text-rose-300 hover:bg-rose-950/50',
                           'cursor-default transition-colors'
                         )}
                       >

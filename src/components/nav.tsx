@@ -1,6 +1,6 @@
 'use client';
 
-import { LogOut } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -17,10 +17,19 @@ import { useAuth } from '@/contexts/auth-context';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSidebar } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 export function Nav() {
   // const pathname = usePathname();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const { toggleSidebar } = useSidebar();
+
+  // Debug user info
+  useEffect(() => {
+    console.log('User in sidebar:', user);
+  }, [user]);
 
   return (
     <Sidebar
@@ -28,10 +37,21 @@ export function Nav() {
       collapsible="offcanvas"
       className="bg-background"
     >
-      <SidebarHeader>
+      <SidebarHeader className="relative">
+        {/* Close button - visible on both mobile and desktop */}
+        <Button
+          onClick={toggleSidebar}
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-2 h-7 w-7 hover:bg-slate-800"
+          aria-label="Close sidebar"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+
         <Link
           href="/dashboard"
-          className="flex items-center justify-center py-4"
+          className="flex items-center justify-center pt-8 pb-4"
         >
           <Image
             src="/logo-white.svg"
@@ -60,9 +80,9 @@ export function Nav() {
                 signOut();
                 redirect('/');
               }}
-              className="w-full transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="w-full transition-colors bg-slate-800/50 hover:bg-primary hover:text-primary-foreground"
             >
-              <LogOut />
+              <LogOut className="text-primary" />
               <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

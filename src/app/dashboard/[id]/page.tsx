@@ -225,6 +225,16 @@ export default function Dashboard() {
     setEditedResume(updatedResume);
     setShowTailorSheet(false);
     setActiveView('editor');
+
+    // Show guidance toast after applying tailored changes
+    toast({
+      title: 'Resume tailored successfully!',
+      description:
+        window.innerWidth > 768
+          ? 'Click the ✓ or ✗ icons to accept or reject all changes. You can also accept/reject individual sections.'
+          : 'Click the menu button (≡) for options to accept or reject all changes.',
+      duration: 8000, // Show for 8 seconds since this is important guidance
+    });
   }, [
     editedResume,
     tailoringData,
@@ -232,6 +242,7 @@ export default function Dashboard() {
     setOriginalResume,
     setShowTailorSheet,
     setActiveView,
+    toast,
   ]);
 
   // Handle cover letter generation and view switching
@@ -321,172 +332,176 @@ export default function Dashboard() {
 
   return (
     <ErrorBoundary>
-      <div className="container mx-auto px-4 py-6">
-        <div className="w-full md:w-3/5 md:mx-auto p-4">
-          {/* Render the action buttons or skeletons */}
-          {actionButtons}
+      <div className="h-full flex flex-col">
+        <div className="container mx-auto px-4 py-6 flex-1">
+          <div className="w-full md:w-3/5 md:mx-auto p-4">
+            {/* Render the action buttons or skeletons */}
+            {actionButtons}
 
-          {/* Document Views - Simple, reliable implementation */}
-          {activeView === 'upload' && (
-            <div className="mb-4">
-              <Suspense
-                fallback={
-                  <Skeleton className="h-48 w-full bg-slate-800/50 rounded-lg" />
-                }
-              >
-                <UploadZone
-                  onFileChange={(file) => {
-                    if (file) changeResume(file);
-                  }}
-                  isPending={isUploading}
-                />
-              </Suspense>
-            </div>
-          )}
-
-          {activeView === 'editor' && resume?.parsedObject && editedResume && (
-            <div className="w-full">
-              <Suspense
-                fallback={
-                  <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
-                    <Skeleton className="h-96 w-full bg-slate-800/50" />
-                  </div>
-                }
-              >
-                <PDFEditor
-                  editedResume={editedResume}
-                  setEditedResume={setEditedResume}
-                  originalResume={originalResume}
-                  showDiffs={originalResume !== null}
-                  onAcceptSection={handleAcceptSectionDiff}
-                  onRejectSection={handleRejectSectionDiff}
-                />
-              </Suspense>
-            </div>
-          )}
-
-          {activeView === 'cover-letter' && coverLetterContent && (
-            <div className="w-full">
-              <Suspense
-                fallback={
-                  <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
-                    <Skeleton className="h-96 w-full bg-slate-800/50" />
-                  </div>
-                }
-              >
-                <CoverLetterEditor
-                  content={coverLetterContent}
-                  onContentChange={setCoverLetterContent}
-                  name={editedResume?.name}
-                  contact={editedResume?.contact}
-                />
-              </Suspense>
-            </div>
-          )}
-
-          {/* Job Description Input */}
-          <div className="mt-8">
-            <Suspense
-              fallback={
-                <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
-                  <Skeleton className="h-24 w-full bg-slate-800/50" />
-                </div>
-              }
-            >
-              <div className="mb-4 space-y-2">
-                <h2 className="text-xl font-semibold text-featureBlue">
-                  Optimize your application
-                </h2>
-                <p className="text-slate-100">
-                  <span className="font-bold">
-                    Verify your resume information and paste job description
-                    below
-                  </span>{' '}
-                  then beem bop boop, you&apos;ll be able to generate a tailored
-                  resume or cover letter
-                </p>
+            {/* Document Views - Simple, reliable implementation */}
+            {activeView === 'upload' && (
+              <div className="mb-4">
+                <Suspense
+                  fallback={
+                    <Skeleton className="h-48 w-full bg-slate-800/50 rounded-lg" />
+                  }
+                >
+                  <UploadZone
+                    onFileChange={(file) => {
+                      if (file) changeResume(file);
+                    }}
+                    isPending={isUploading}
+                  />
+                </Suspense>
               </div>
-              <JobDescriptionInput
-                jobDescription={jobDescription}
-                setJobDescription={setJobDescription}
-              >
-                <Button
-                  onClick={(e) => {
-                    if (
-                      isGeneratingCoverLetter ||
-                      !resume?.parsedObject ||
-                      !jobDescription ||
-                      isUploading ||
-                      isLoading ||
-                      isAnalyzing
-                    ) {
-                      e.preventDefault();
-                      handleDisabledButtonClick('generate');
-                      return;
-                    }
-                    handleGenerateCoverLetter();
-                  }}
-                  variant="ghost"
-                  className="flex-1 md:flex-initial text-xs md:text-sm flex gap-2 items-center whitespace-nowrap hover:text-featureBlue min-w-0"
-                  title="Generate a cover letter from your resume"
-                >
-                  <Pencil className="h-4 w-4 shrink-0" />
-                  {isGeneratingCoverLetter ? (
-                    <div className="flex items-center gap-2 truncate">
-                      <LoaderPinwheel className="h-4 w-4 animate-spin shrink-0" />
-                      <span className="truncate">Generating...</span>
-                    </div>
-                  ) : (
-                    <span className="truncate">Generate Cover Letter</span>
-                  )}
-                </Button>
+            )}
 
-                <Button
-                  onClick={(e) => {
-                    if (
-                      isGeneratingCoverLetter ||
-                      !jobDescription ||
-                      isSaving ||
-                      isUploading ||
-                      isLoading ||
-                      isAnalyzing
-                    ) {
-                      e.preventDefault();
-                      handleDisabledButtonClick('tailor');
-                      return;
+            {activeView === 'editor' &&
+              resume?.parsedObject &&
+              editedResume && (
+                <div className="w-full">
+                  <Suspense
+                    fallback={
+                      <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
+                        <Skeleton className="h-96 w-full bg-slate-800/50" />
+                      </div>
                     }
-                    getTailoringAnalysis();
-                  }}
-                  variant="ghost"
-                  className="flex-1 md:flex-initial text-xs md:text-sm flex gap-2 items-center whitespace-nowrap hover:text-featureBlue min-w-0"
-                  title="Tailor Resume"
+                  >
+                    <PDFEditor
+                      editedResume={editedResume}
+                      setEditedResume={setEditedResume}
+                      originalResume={originalResume}
+                      showDiffs={originalResume !== null}
+                      onAcceptSection={handleAcceptSectionDiff}
+                      onRejectSection={handleRejectSectionDiff}
+                    />
+                  </Suspense>
+                </div>
+              )}
+
+            {activeView === 'cover-letter' && coverLetterContent && (
+              <div className="w-full">
+                <Suspense
+                  fallback={
+                    <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
+                      <Skeleton className="h-96 w-full bg-slate-800/50" />
+                    </div>
+                  }
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <LoaderPinwheel className="h-4 w-4 animate-spin shrink-0" />
-                      <span className="truncate">Analyzing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Pencil className="h-4 w-4 shrink-0" />
-                      <span className="truncate">Tailor Resume</span>
-                    </>
-                  )}
-                </Button>
-              </JobDescriptionInput>
+                  <CoverLetterEditor
+                    content={coverLetterContent}
+                    onContentChange={setCoverLetterContent}
+                    name={editedResume?.name}
+                    contact={editedResume?.contact}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {/* Job Description Input */}
+            <div className="mt-8">
+              <Suspense
+                fallback={
+                  <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-lg p-6">
+                    <Skeleton className="h-24 w-full bg-slate-800/50" />
+                  </div>
+                }
+              >
+                <div className="mb-4 space-y-2">
+                  <h2 className="text-xl font-semibold text-featureBlue">
+                    Optimize your application
+                  </h2>
+                  <p className="text-slate-100">
+                    <span className="font-bold">
+                      Verify your resume information and paste job description
+                      below
+                    </span>{' '}
+                    then beem bop boop, you&apos;ll be able to generate a
+                    tailored resume or cover letter
+                  </p>
+                </div>
+                <JobDescriptionInput
+                  jobDescription={jobDescription}
+                  setJobDescription={setJobDescription}
+                >
+                  <Button
+                    onClick={(e) => {
+                      if (
+                        isGeneratingCoverLetter ||
+                        !resume?.parsedObject ||
+                        !jobDescription ||
+                        isUploading ||
+                        isLoading ||
+                        isAnalyzing
+                      ) {
+                        e.preventDefault();
+                        handleDisabledButtonClick('generate');
+                        return;
+                      }
+                      handleGenerateCoverLetter();
+                    }}
+                    variant="ghost"
+                    className="flex-1 md:flex-initial text-xs md:text-sm flex gap-2 items-center whitespace-nowrap hover:text-featureBlue min-w-0"
+                    title="Generate a cover letter from your resume"
+                  >
+                    <Pencil className="h-4 w-4 shrink-0" />
+                    {isGeneratingCoverLetter ? (
+                      <div className="flex items-center gap-2 truncate">
+                        <LoaderPinwheel className="h-4 w-4 animate-spin shrink-0" />
+                        <span className="truncate">Generating...</span>
+                      </div>
+                    ) : (
+                      <span className="truncate">Generate Cover Letter</span>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={(e) => {
+                      if (
+                        isGeneratingCoverLetter ||
+                        !jobDescription ||
+                        isSaving ||
+                        isUploading ||
+                        isLoading ||
+                        isAnalyzing
+                      ) {
+                        e.preventDefault();
+                        handleDisabledButtonClick('tailor');
+                        return;
+                      }
+                      getTailoringAnalysis();
+                    }}
+                    variant="ghost"
+                    className="flex-1 md:flex-initial text-xs md:text-sm flex gap-2 items-center whitespace-nowrap hover:text-featureBlue min-w-0"
+                    title="Tailor Resume"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <LoaderPinwheel className="h-4 w-4 animate-spin shrink-0" />
+                        <span className="truncate">Analyzing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="h-4 w-4 shrink-0" />
+                        <span className="truncate">Tailor Resume</span>
+                      </>
+                    )}
+                  </Button>
+                </JobDescriptionInput>
+              </Suspense>
+            </div>
+
+            {/* Resume Tailoring Sheet */}
+            <Suspense fallback={null}>
+              <ResumeTailor
+                isOpen={showTailorSheet}
+                onOpenChange={setShowTailorSheet}
+                requirements={tailoringData?.tailoringResult?.requirements}
+                onGenerateResume={handleApplyTailoredChanges}
+                isLoading={isAnalyzing}
+              />
             </Suspense>
           </div>
-
-          {/* Resume Tailoring Sheet */}
-          <Suspense fallback={null}>
-            <ResumeTailor
-              isOpen={showTailorSheet}
-              onOpenChange={setShowTailorSheet}
-              requirements={tailoringData?.tailoringResult?.requirements}
-              onGenerateResume={handleApplyTailoredChanges}
-              isLoading={isAnalyzing}
-            />
-          </Suspense>
         </div>
       </div>
     </ErrorBoundary>

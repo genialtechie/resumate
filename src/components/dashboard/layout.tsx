@@ -1,10 +1,6 @@
 'use client';
 import { Nav } from '@/components/nav';
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarOverlay,
-} from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TokenDisplay } from '@/components/dashboard/token-display';
 
 // Optimize loading
@@ -14,9 +10,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <div className="flex flex-col h-screen w-full overflow-hidden">
-        <SidebarOverlay />
         <div className="flex flex-wrap justify-between items-center p-4">
           {/* Sidebar trigger - now first element */}
           <div className="flex items-center shrink-0 order-1 mr-2">
@@ -26,7 +21,7 @@ export default function DashboardLayout({
           {/* Portal target for document tabs */}
           <div
             id="document-tabs-container"
-            className="flex-grow flex items-center gap-2 min-w-0 order-2 max-w-[70%] xs:max-w-[80%] sm:ml-2"
+            className="flex-grow flex items-center gap-2 min-w-0 order-2 max-w-[70%] xs:max-w-[80%]"
           ></div>
 
           {/* Portal target for upload button - full width on very small screens */}
