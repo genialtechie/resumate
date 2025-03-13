@@ -15,9 +15,9 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="flex flex-col h-screen w-full overflow-hidden">
+      <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
         <SidebarOverlay />
-        <div className="flex flex-wrap justify-between items-center p-4">
+        <div className="flex flex-wrap justify-between items-center p-4 shrink-0">
           {/* Sidebar trigger - now first element */}
           <div className="flex items-center shrink-0 order-1 mr-2">
             <SidebarTrigger className="scale-125 bg-primary text-primary-foreground" />
@@ -26,7 +26,7 @@ export default function DashboardLayout({
           {/* Portal target for document tabs */}
           <div
             id="document-tabs-container"
-            className="flex-grow flex items-center gap-2 min-w-0 order-2 max-w-[70%] xs:max-w-[80%] sm:ml-2"
+            className="flex-grow flex items-center gap-2 min-w-0 order-2 max-w-[70%] xs:max-w-[80%] sm:ml-1"
           ></div>
 
           {/* Portal target for upload button - full width on very small screens */}
@@ -40,10 +40,10 @@ export default function DashboardLayout({
             <TokenDisplay />
           </div>
         </div>
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           <Nav />
           <main className="flex-1 overflow-hidden flex flex-col">
-            <div className="flex-1 overflow-auto">{children}</div>
+            <div className="flex-1 overflow-auto min-h-0">{children}</div>
           </main>
         </div>
       </div>

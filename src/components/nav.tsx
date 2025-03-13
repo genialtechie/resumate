@@ -37,7 +37,7 @@ export function Nav() {
       collapsible="offcanvas"
       className="bg-background"
     >
-      <SidebarHeader className="relative">
+      <SidebarHeader className="relative shrink-0">
         {/* Close button - visible on both mobile and desktop */}
         <Button
           onClick={toggleSidebar}
@@ -64,7 +64,7 @@ export function Nav() {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="min-h-0">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>{/* Add navigation items here */}</SidebarMenu>
@@ -72,7 +72,7 @@ export function Nav() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="mt-auto">
+      <SidebarFooter className="mt-auto shrink-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
