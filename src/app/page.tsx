@@ -84,7 +84,7 @@ export default function Home() {
                 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight font-heading text-white leading-tight"
               >
                 Stand Out in a{' '}
-                <span className="inline-block bg-gradient-to-b from-[#54CCFF] via-[#54CCFF] to-[#222046] bg-clip-text text-transparent">
+                <span className="inline-block bg-blue-gradient bg-clip-text text-transparent">
                   Competitive
                 </span>{' '}
                 Job Market
@@ -220,7 +220,7 @@ export default function Home() {
           <div className="text-center mb-12 animate-fade-up">
             <h2
               id="demo-heading"
-              className="bg-gradient-to-b from-[#54CCFF] via-[#54CCFF] to-[#222046] bg-clip-text text-transparent text-3xl sm:text-4xl font-bold"
+              className="text-3xl sm:text-4xl font-bold bg-blue-gradient bg-clip-text text-transparent"
             >
               See It In Action
             </h2>
@@ -265,7 +265,7 @@ export default function Home() {
           <div className="text-center mb-16 animate-fade-up">
             <h2
               id="features-heading"
-              className="bg-gradient-to-b from-[#54CCFF] via-[#54CCFF] to-[#222046] bg-clip-text text-transparent text-3xl sm:text-4xl font-bold"
+              className="text-3xl sm:text-4xl font-bold bg-blue-gradient bg-clip-text text-transparent"
             >
               Powerful features for your job search
             </h2>
@@ -307,7 +307,7 @@ export default function Home() {
           <div className="text-center mb-16 animate-fade-up">
             <h2
               id="testimonials-heading"
-              className="bg-gradient-to-b from-[#54CCFF] via-[#54CCFF] to-[#222046] bg-clip-text text-transparent text-3xl sm:text-4xl font-bold"
+              className="text-3xl sm:text-4xl font-bold bg-blue-gradient bg-clip-text text-transparent"
             >
               What our users are saying
             </h2>

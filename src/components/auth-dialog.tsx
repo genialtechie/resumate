@@ -39,10 +39,12 @@ export default function AuthDialog({ trigger, className }: AuthDialogProps) {
             size="lg"
             className={`group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105 ${className}`}
           >
-            <span className="bg-blue-gradient bg-clip-text text-transparent uppercase font-bold text-xl transition-opacity duration-300 group-hover:opacity-80">
-              Get Started
+            <span className="inline-block">
+              <span className="flex items-center bg-blue-gradient bg-clip-text text-transparent font-bold uppercase text-lg transition-opacity duration-300 group-hover:opacity-80">
+                Get Started
+                <LogIn className="ml-2 h-5 w-5 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+              </span>
             </span>
-            <LogIn className="ml-2 h-4 w-4 text-featureBlue font-bold transition-all duration-300 group-hover:translate-x-1" />
           </Button>
         </DialogTrigger>
       )}

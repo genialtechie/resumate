@@ -18,7 +18,7 @@ export default {
     },
   	extend: {
       backgroundImage: {
-        'blue-gradient': 'linear-gradient(to bottom, #54CCFF 75%, #222046)',
+        'blue-gradient': 'linear-gradient(to bottom, #54CCFF 70%, #222046)',
         'hero-pattern': "url('/bg-image.png')",
       },
       backgroundClip: {

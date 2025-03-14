@@ -42,12 +42,14 @@ export default function AuthButtons() {
         disabled={isLoading}
         className="w-full group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105"
       >
-        <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
-          <div className="flex items-center">
-            <Mail className="mr-4 h-4 w-4 text-featureBlue" />
-            Continue with Google
-          </div>
-          <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+        <span className="inline-block w-full">
+          <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
+            <div className="flex items-center">
+              <Mail className="mr-4 h-4 w-4 text-featureBlue" />
+              Continue with Google
+            </div>
+            <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+          </span>
         </span>
       </Button>
       <Button
@@ -55,12 +57,14 @@ export default function AuthButtons() {
         disabled={isLoading}
         className="w-full group bg-transparent hover:bg-transparent transition-transform duration-300 ease-in-out hover:scale-105"
       >
-        <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
-          <div className="flex items-center">
-            <Github className="mr-4 h-4 w-4 text-featureBlue" />
-            Continue with GitHub
-          </div>
-          <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+        <span className="inline-block w-full">
+          <span className="flex w-full items-center justify-between bg-blue-gradient bg-clip-text text-transparent font-semibold transition-opacity duration-300 group-hover:opacity-80">
+            <div className="flex items-center">
+              <Github className="mr-4 h-4 w-4 text-featureBlue" />
+              Continue with GitHub
+            </div>
+            <LogIn className="h-4 w-4 text-featureBlue transition-all duration-300 group-hover:translate-x-1" />
+          </span>
         </span>
       </Button>
     </div>
