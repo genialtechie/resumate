@@ -5,16 +5,16 @@ import {
   ResumeContentObject,
   CoverLetterMetadata,
 } from '@/types';
-import { PDFProcessor } from '@/lib/pdf/processor';
+import { DocumentProcessor } from '@/lib/pdf/processor';
 import { parseResume as parseLLM } from '@/lib/llm/parse-text-llm';
 import { parseResume as parsePattern } from '@/lib/parser/parse-text';
 
-export class PDFHandler {
-  private pdfProcessor: PDFProcessor;
+export class DocumentHandler {
+  private docProcessor: DocumentProcessor;
   private supabase: SupabaseClient;
 
   constructor() {
-    this.pdfProcessor = new PDFProcessor();
+    this.docProcessor = new DocumentProcessor();
     this.supabase = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_ANON_KEY!
@@ -47,7 +47,8 @@ export class PDFHandler {
   async saveResume(
     file: ArrayBuffer,
     fileName: string,
-    userId: string
+    userId: string,
+    mimeType?: string
   ): Promise<ResumeMetadata> {
     if (!userId) {
       throw new Error('User ID is required to save a resume');
@@ -55,15 +56,23 @@ export class PDFHandler {
 
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    const textContent = await this.pdfProcessor.extractText(file);
+    const textContent = await this.docProcessor.extractText(
+      file,
+      fileName,
+      mimeType
+    );
     const parsedObject = await this.parseContent(textContent);
+
+    // Get the file extension for title format
+    const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
+    const title = fileName.replace(new RegExp(`\\.${fileExtension}$`), '');
 
     const { error: dbError } = await this.supabase.from('resumes').insert({
       id,
       file_name: fileName,
       created_at: now,
       updated_at: now,
-      title: fileName.replace('.pdf', ''),
+      title: title,
       parsed_content: textContent,
       parsed_object: parsedObject,
       user_id: userId,
@@ -76,7 +85,7 @@ export class PDFHandler {
       fileName,
       createdAt: now,
       updatedAt: now,
-      title: fileName.replace('.pdf', ''),
+      title: title,
       parsedContent: textContent,
       parsedObject,
       userId,
@@ -129,22 +138,31 @@ export class PDFHandler {
     id: string,
     file: ArrayBuffer,
     fileName: string,
-    userId: string
+    userId: string,
+    mimeType?: string
   ): Promise<ResumeMetadata> {
     if (!userId) {
       throw new Error('User ID is required to update a resume');
     }
 
     const now = new Date().toISOString();
-    const textContent = await this.pdfProcessor.extractText(file);
+    const textContent = await this.docProcessor.extractText(
+      file,
+      fileName,
+      mimeType
+    );
     const parsedObject = await this.parseContent(textContent);
+
+    // Get the file extension for title format
+    const fileExtension = fileName.split('.').pop()?.toLowerCase() || '';
+    const title = fileName.replace(new RegExp(`\\.${fileExtension}$`), '');
 
     const { error: dbError } = await this.supabase
       .from('resumes')
       .update({
         file_name: fileName,
         updated_at: now,
-        title: fileName.replace('.pdf', ''),
+        title: title,
         parsed_content: textContent,
         parsed_object: parsedObject,
       })
@@ -166,7 +184,7 @@ export class PDFHandler {
       fileName,
       createdAt: existing?.created_at || now,
       updatedAt: now,
-      title: fileName.replace('.pdf', ''),
+      title: title,
       parsedContent: textContent,
       parsedObject,
       userId,
@@ -471,3 +489,6 @@ export class PDFHandler {
     };
   }
 }
+
+// For backward compatibility, keep PDFHandler as an alias
+export class PDFHandler extends DocumentHandler {}

@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { PDFHandler } from '@/lib/pdf/handler';
+import { DocumentHandler } from '@/lib/pdf/handler';
 import { getUserIdFromRequest } from '@/lib/utils/supabase/auth';
 import { withTokenCheck } from '@/lib/llm/token-guard';
 import { TokenLimitError } from '@/lib/utils/token-service';
@@ -17,12 +17,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // More lenient file type checking
+    let isValidType = false;
+
+    // PDF check
+    if (file.type === 'application/pdf') {
+      isValidType = true;
+    }
+
+    // DOCX check - accept any type containing these key parts
+    if (
+      file.type.includes('officedocument') &&
+      file.type.includes('wordprocessing') &&
+      (file.name.endsWith('.docx') || file.name.endsWith('.DOCX'))
+    ) {
+      isValidType = true;
+    }
+
+    // TXT check
+    if (
+      file.type === 'text/plain' ||
+      file.name.endsWith('.txt') ||
+      file.name.endsWith('.TXT')
+    ) {
+      isValidType = true;
+    }
+
+    if (!isValidType) {
+      return NextResponse.json(
+        {
+          error: 'Invalid file type. Only PDF, DOCX, and TXT files are allowed',
+        },
+        { status: 400 }
+      );
+    }
+
     const buffer = await file.arrayBuffer();
-    const handler = new PDFHandler();
+    const handler = new DocumentHandler();
 
     // Wrap the saveResume operation with token checking
     const metadata = await withTokenCheck('PARSE_RESUME', () =>
-      handler.saveResume(buffer, file.name, userId)
+      handler.saveResume(buffer, file.name, userId, file.type)
     );
 
     return NextResponse.json(metadata, { status: 200 });

@@ -1,7 +1,19 @@
 import { createClient } from '@/lib/utils/supabase/server';
 import { TokenInfo } from '@/types';
 
+/**
+ * Custom error thrown when a user has reached their token limit.
+ * Used to handle premium feature access restrictions.
+ *
+ * @class
+ * @extends {Error}
+ */
 export class TokenLimitError extends Error {
+  /**
+   * Creates a new TokenLimitError instance
+   *
+   * @param {string} [message='Token limit reached'] - Error message
+   */
   constructor(message = 'Token limit reached') {
     super(message);
     this.name = 'TokenLimitError';
@@ -10,9 +22,19 @@ export class TokenLimitError extends Error {
 
 /**
  * Service for managing user tokens
+ * Handles token consumption, tracking, and limit enforcement
+ *
+ * @class
+ * @static
  */
 export class TokenService {
-  // Cost of different operations in tokens
+  /**
+   * Cost of different operations in tokens
+   * Used to calculate token consumption for various application features
+   *
+   * @static
+   * @readonly
+   */
   static readonly COSTS = {
     PARSE_RESUME: 1,
     GENERATE_COVER_LETTER: 2,
@@ -21,8 +43,13 @@ export class TokenService {
 
   /**
    * Get user's current token information
-   * @param userId - The user's ID
-   * @returns TokenInfo - The user's token information
+   * Retrieves token information from the database or initializes if not found
+   *
+   * @static
+   * @async
+   * @param {string} userId - The user's ID
+   * @returns {Promise<TokenInfo>} The user's token information
+   * @throws {Error} If token information cannot be retrieved
    */
   static async getUserTokens(userId: string): Promise<TokenInfo> {
     const supabase = await createClient();
@@ -35,16 +62,16 @@ export class TokenService {
 
     if (error) {
       console.error('Error fetching token info:', error);
-      
+
       // Check if this is the "no rows" error, which means we need to initialize tokens
       if (error.code === 'PGRST116') {
         // Create token record if it doesn't exist
         await this.initializeUserTokens(userId);
-        
+
         // Try again after initialization
         return this.getUserTokens(userId);
       }
-      
+
       throw new Error('Failed to retrieve token information');
     }
 
@@ -53,12 +80,18 @@ export class TokenService {
       tokensUsed: data.tokens_used,
       lastReset: data.last_reset,
       nextReset: data.next_reset,
-    };
+    } as TokenInfo;
   }
 
   /**
-   * Initialize tokens for a new user
-   * @param userId - The user's ID
+   * Initializes token information for a new user
+   * Creates a new record in the token database with default values
+   *
+   * @static
+   * @async
+   * @param {string} userId - The user's ID
+   * @returns {Promise<void>}
+   * @throws {Error} If initialization fails
    */
   static async initializeUserTokens(userId: string): Promise<void> {
     const supabase = await createClient();
@@ -86,10 +119,16 @@ export class TokenService {
   }
 
   /**
-   * Check if user has enough tokens and consume them if available
-   * @param userId - The user's ID
-   * @param operationType - The type of operation to consume tokens for
-   * @returns True if tokens were consumed, false otherwise
+   * Consumes tokens for a specified operation
+   * Verifies if the user has enough tokens and updates their token count
+   *
+   * @static
+   * @async
+   * @param {string} userId - The user's ID
+   * @param {keyof typeof TokenService.COSTS} operationType - Type of operation to consume tokens for
+   * @returns {Promise<boolean>} True if tokens were successfully consumed
+   * @throws {TokenLimitError} If the user doesn't have enough tokens
+   * @throws {Error} If token consumption fails for other reasons
    */
   static async consumeTokens(
     userId: string,
@@ -124,13 +163,17 @@ export class TokenService {
       console.error('Error consuming tokens:', error);
       throw new Error('Failed to consume tokens');
     }
-    
+
     return true;
   }
 
   /**
-   * Reset tokens for all users whose tokens are due for reset
-   * @returns void
+   * Resets tokens for users whose token reset date has passed
+   * Typically called by a scheduled job/cron
+   *
+   * @static
+   * @async
+   * @returns {Promise<void>}
    */
   static async resetExpiredTokens(): Promise<void> {
     const supabase = await createClient();

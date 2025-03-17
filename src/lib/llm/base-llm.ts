@@ -1,16 +1,44 @@
+/**
+ * Base URL for OpenRouter API requests
+ */
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
+/**
+ * Custom error class for LLM-related errors
+ * Provides better error handling and context for LLM operation failures
+ *
+ * @class
+ * @extends {Error}
+ */
 export class LLMError extends Error {
+  /**
+   * Creates a new LLMError instance
+   *
+   * @param {string} message - Error message
+   * @param {unknown} [cause] - Original error that caused this error
+   */
   constructor(message: string, public readonly cause?: unknown) {
     super(message);
     this.name = 'LLMError';
   }
 }
 
+/**
+ * Configuration options for LLM API calls
+ *
+ * @interface
+ */
 interface LLMConfig {
+  /** Model identifier to use for generation */
   model?: string;
+
+  /** Temperature controlling randomness (0-1) */
   temperature?: number;
+
+  /** Maximum number of tokens to generate */
   max_tokens?: number;
+
+  /** Response format specification */
   response_format?: unknown;
 }
 
@@ -20,9 +48,25 @@ interface LLMConfig {
  * @description This is the base class for all LLM services. It provides a common interface for all LLM services.
  */
 export abstract class BaseLLMService {
+  /**
+   * API key for authentication with the LLM provider
+   * @protected
+   */
   protected apiKey: string;
+
+  /**
+   * Configuration settings for the LLM API calls
+   * @protected
+   */
   protected config: LLMConfig;
 
+  /**
+   * Creates a new BaseLLMService instance
+   *
+   * @param {string} apiKey - API key for authentication
+   * @param {LLMConfig} [config] - Optional configuration settings
+   * @throws {Error} If API key is not provided
+   */
   constructor(apiKey: string, config: LLMConfig = {}) {
     if (!apiKey) {
       throw new Error('OpenRouter API key is required');
@@ -36,9 +80,37 @@ export abstract class BaseLLMService {
     };
   }
 
+  /**
+   * Builds a prompt for the LLM based on the input
+   * Must be implemented by child classes
+   *
+   * @abstract
+   * @protected
+   * @param {unknown} input - Input data to build the prompt from
+   * @returns {string} Formatted prompt string
+   */
   protected abstract buildPrompt(input: unknown): string;
+
+  /**
+   * Validates and processes the response from the LLM
+   * Must be implemented by child classes
+   *
+   * @abstract
+   * @protected
+   * @param {unknown} response - Raw response from the LLM
+   * @returns {unknown} Validated and processed response
+   */
   protected abstract validateResponse(response: unknown): unknown;
 
+  /**
+   * Makes an API call to the LLM service
+   *
+   * @protected
+   * @template T - Type of the processed response
+   * @param {unknown} input - Input data for the LLM
+   * @returns {Promise<T>} Processed response from the LLM
+   * @throws {LLMError} If the API call fails
+   */
   protected async callLLM<T>(input: unknown): Promise<T> {
     try {
       const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
@@ -46,7 +118,8 @@ export abstract class BaseLLMService {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
-          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://qualifies.me',
+          'HTTP-Referer':
+            process.env.NEXT_PUBLIC_APP_URL || 'https://qualifies.me',
           'X-Title': 'qualifies',
           'User-Agent': 'qualifies/1.0.0',
         },
@@ -139,6 +212,16 @@ export abstract class BaseLLMService {
     }
   }
 
+  /**
+   * Processes input data through the LLM pipeline
+   * This is the main method to be called by clients
+   *
+   * @public
+   * @template T - Type of the processed response
+   * @param {unknown} input - Input data to process
+   * @returns {Promise<T>} Processed response
+   * @throws {LLMError} If processing fails
+   */
   public async process<T>(input: unknown): Promise<T> {
     return this.callLLM<T>(input);
   }

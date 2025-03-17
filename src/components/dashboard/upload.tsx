@@ -38,11 +38,37 @@ export const UploadZone = ({ onFileChange, isPending }: UploadZoneProps) => {
   const handleFile = (file: File) => {
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
+    // More lenient file type checking
+    let isValidType = false;
+
+    // PDF check
+    if (file.type === 'application/pdf') {
+      isValidType = true;
+    }
+
+    // DOCX check - accept any type containing these key parts
+    if (
+      file.type.includes('officedocument') &&
+      file.type.includes('wordprocessing') &&
+      (file.name.endsWith('.docx') || file.name.endsWith('.DOCX'))
+    ) {
+      isValidType = true;
+    }
+
+    // TXT check
+    if (
+      file.type === 'text/plain' ||
+      file.name.endsWith('.txt') ||
+      file.name.endsWith('.TXT')
+    ) {
+      isValidType = true;
+    }
+
+    if (!isValidType) {
       toast({
         variant: 'destructive',
         title: 'Invalid file type',
-        description: 'Please upload a PDF file',
+        description: 'Please upload a PDF, DOCX, or TXT file',
       });
       return;
     }
@@ -86,13 +112,13 @@ export const UploadZone = ({ onFileChange, isPending }: UploadZoneProps) => {
       <input
         ref={fileInputRef}
         type="file"
-        accept="application/pdf"
+        accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) handleFile(file);
         }}
         className="hidden"
-        aria-label="Upload resume PDF"
+        aria-label="Upload resume"
         tabIndex={-1}
       />
       <div
@@ -103,7 +129,7 @@ export const UploadZone = ({ onFileChange, isPending }: UploadZoneProps) => {
         onDrop={handleDrop}
         tabIndex={0}
         role="button"
-        aria-label="Upload resume PDF"
+        aria-label="Upload resume"
         className={cn(
           'relative w-full rounded-lg border-2 border-dashed p-8 transition-all duration-200 ease-in-out cursor-pointer',
           isDragging
@@ -142,7 +168,7 @@ export const UploadZone = ({ onFileChange, isPending }: UploadZoneProps) => {
                 <span className="text-primary cursor-pointer">browse</span>
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Supports PDF files only
+                Supports PDF, DOCX, and TXT files
               </p>
             </div>
           </div>

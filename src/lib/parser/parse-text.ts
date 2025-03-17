@@ -1,6 +1,23 @@
 import { ResumeContentObject } from '@/types';
 
+/**
+ * ResumeParser is responsible for parsing resume text content into a structured format.
+ * It identifies different sections of a resume and extracts relevant information.
+ *
+ * @class
+ * @example
+ * ```typescript
+ * const parser = new ResumeParser(resumeText);
+ * const parsedResume = parser.parse();
+ * ```
+ */
 export class ResumeParser {
+  /**
+   * Common section headers found in resumes, used for section identification.
+   * Grouped by section type with various alternative spellings and formats.
+   * @private
+   * @static
+   */
   private static readonly SECTION_HEADERS = {
     summary: ['professional summary', 'summary', 'overview', 'objective'],
     skills: ['skills', 'technical skills', 'core competencies', 'expertise'],
@@ -13,6 +30,12 @@ export class ResumeParser {
     education: ['education', 'academic background', 'educational background'],
   };
 
+  /**
+   * Common bullet point characters used in resume formatting.
+   * Used to identify bullet point lists in experience and skills sections.
+   * @private
+   * @static
+   */
   private static readonly BULLET_POINTS = [
     '•',
     '-',
@@ -25,12 +48,26 @@ export class ResumeParser {
     '▫',
   ];
 
+  /**
+   * Regular expression for identifying date ranges in work experience.
+   * Matches common date formats like "Jan 2020 - Present" or "01/2020 - 12/2022".
+   * @private
+   * @static
+   */
   private static readonly DATE_REGEX =
     /\b(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*|(?:0?[1-9]|1[0-2])\/)\s*(?:20\d{2})\s*(?:-|to|–)\s*(?:Present|(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*|(?:0?[1-9]|1[0-2])\/)\s*(?:20\d{2}))\b/i;
 
+  /** Array of text segments from the resume */
   private segments: string[];
+
+  /** Map of identified sections and their boundaries in the segments array */
   private sections: Record<string, { start: number; end: number }>;
 
+  /**
+   * Creates a new ResumeParser instance.
+   *
+   * @param {string} content - The raw text content of the resume
+   */
   constructor(content: string) {
     // Try line-based parsing first
     const lines = content.split('\n').filter(Boolean);
@@ -39,10 +76,25 @@ export class ResumeParser {
     this.sections = this.findSectionBoundaries();
   }
 
+  /**
+   * Escapes special characters in a string for use in a regular expression.
+   *
+   * @private
+   * @static
+   * @param {string} string - String to escape
+   * @returns {string} Escaped string safe for regex usage
+   */
   private static escapeRegExp(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  /**
+   * Identifies the boundaries of different sections in the resume.
+   * Searches for section headers and determines where each section starts and ends.
+   *
+   * @private
+   * @returns {Record<string, { start: number; end: number }>} Map of section names to their start and end indices
+   */
   private findSectionBoundaries(): Record<
     string,
     { start: number; end: number }
@@ -84,6 +136,14 @@ export class ResumeParser {
     return boundaries;
   }
 
+  /**
+   * Extracts contact information from the resume text.
+   * Looks for email addresses, phone numbers, and URLs.
+   *
+   * @private
+   * @param {string} text - The text to parse for contact information
+   * @returns {{ email: string, phone: string, linkedin: string, website: string }} Extracted contact information
+   */
   private parseContactInfo(text: string) {
     const tokens = text.split(/[\s,]+/);
 
@@ -105,6 +165,14 @@ export class ResumeParser {
     };
   }
 
+  /**
+   * Parses the experience section of the resume.
+   * Extracts job titles, companies, dates, and bullet points.
+   *
+   * @private
+   * @param {string[]} segments - Text segments from the experience section
+   * @returns {Array<{ title: string, company: string, date: string, details: string[] }>} Structured experience data
+   */
   private parseExperience(segments: string[]) {
     const experience: {
       company: string;
@@ -161,6 +229,14 @@ export class ResumeParser {
     return experience;
   }
 
+  /**
+   * Parses the education section of the resume.
+   * Extracts degrees, institutions, and graduation dates.
+   *
+   * @private
+   * @param {string[]} segments - Text segments from the education section
+   * @returns {Array<{ degree: string, institution: string, date: string }>} Structured education data
+   */
   private parseEducation(segments: string[]) {
     const education: {
       institution: string;
@@ -208,6 +284,13 @@ export class ResumeParser {
     return education;
   }
 
+  /**
+   * Parses the entire resume and returns a structured object.
+   * This is the main method that should be called after creating a ResumeParser instance.
+   *
+   * @public
+   * @returns {ResumeContentObject} Structured resume data
+   */
   public parse(): ResumeContentObject {
     // Extract header info
     const headerInfo = {
@@ -275,6 +358,17 @@ export class ResumeParser {
   }
 }
 
+/**
+ * Utility function to parse a resume string into a structured object.
+ * Creates a ResumeParser instance and returns the parsed result.
+ *
+ * @param {string} content - The raw text content of the resume
+ * @returns {ResumeContentObject} Structured resume data
+ * @example
+ * ```typescript
+ * const parsedResume = parseResume(resumeText);
+ * ```
+ */
 export function parseResume(content: string): ResumeContentObject {
   const parser = new ResumeParser(content);
   return parser.parse();

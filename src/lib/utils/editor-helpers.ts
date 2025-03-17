@@ -2,10 +2,13 @@ import { ResumeContentObject } from '@/types';
 
 /**
  * Generic handler for top-level string fields
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param field - The field to update
- * @param value - The new value for the field
+ * Updates a simple string field in the resume object when the field loses focus
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {keyof Omit<ResumeContentObject, 'skills' | 'contact' | 'experience' | 'education'>} field - The field to update
+ * @param {string} value - The new value for the field
+ * @returns {void}
  */
 export const handleFieldBlur = (
   editedResume: ResumeContentObject,
@@ -24,9 +27,12 @@ export const handleFieldBlur = (
 
 /**
  * Handler for updating the contact info from a single editable block
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param value - The new value for the contact info
+ * Parses a formatted string containing contact information and updates the resume object
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {string} value - The new value for the contact info in format "email | phone | website/linkedin"
+ * @returns {void}
  */
 export const handleContactBlur = (
   editedResume: ResumeContentObject,
@@ -37,15 +43,15 @@ export const handleContactBlur = (
   const [emailInput = '', phoneInput = '', websiteOrLinkedIn = ''] = value
     .split('|')
     .map((s) => s.trim());
-    
+
   // Filter out placeholder values
   const email = emailInput === 'your.email@example.com' ? '' : emailInput;
   const phone = phoneInput === '(555) 123-4567' ? '' : phoneInput;
-  
+
   // Determine if the third field is a LinkedIn URL or website
   let linkedin = '';
   let website = '';
-  
+
   if (websiteOrLinkedIn && websiteOrLinkedIn !== 'your-website.com') {
     if (websiteOrLinkedIn.includes('linkedin.com')) {
       linkedin = websiteOrLinkedIn;
@@ -53,23 +59,26 @@ export const handleContactBlur = (
       website = websiteOrLinkedIn;
     }
   }
-  
+
   setEditedResume({
     ...editedResume,
-    contact: { 
-      email, 
-      phone, 
+    contact: {
+      email,
+      phone,
       linkedin,
-      website
+      website,
     },
   });
 };
 
 /**
- * Handler for updating skills
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param value - The new value for the skills
+ * Handler for updating the skills section from an editable block
+ * Parses a comma or newline separated list of skills and updates the resume object
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {string} value - The new skills as a comma or newline separated string
+ * @returns {void}
  */
 export const handleSkillsBlur = (
   editedResume: ResumeContentObject,
@@ -87,11 +96,15 @@ export const handleSkillsBlur = (
 };
 
 /**
- * For updating an experience entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param index - The index of the experience entry
- * @param field - The field to update
+ * Handler for updating a field in an experience entry
+ * Updates a specific field in a specific experience entry when it loses focus
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} index - The index of the experience entry to update
+ * @param {keyof Omit<Exclude<ResumeContentObject['experience'], undefined>[number], 'details'>} field - The field to update
+ * @param {string} value - The new value for the field
+ * @returns {void}
  */
 export const handleExperienceBlur = (
   editedResume: ResumeContentObject,
@@ -109,12 +122,15 @@ export const handleExperienceBlur = (
 };
 
 /**
- * For updating a single detail line in an experience entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param expIndex - The index of the experience entry
- * @param detailIndex - The index of the detail entry to update
- * @param value - The new value for the detail entry
+ * Handler for updating a bullet point detail in an experience entry
+ * Updates a specific bullet point in a specific experience entry
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} expIndex - The index of the experience entry
+ * @param {number} detailIndex - The index of the detail to update
+ * @param {string} value - The new value for the detail
+ * @returns {void}
  */
 export const handleExperienceDetailChange = (
   editedResume: ResumeContentObject,
@@ -138,11 +154,14 @@ export const handleExperienceDetailChange = (
 };
 
 /**
- * Adds a new detail entry after the specified index
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param expIndex - The index of the experience entry
- * @param detailIndex - The index of the detail entry to add
+ * Adds a new bullet point detail to an experience entry
+ * Inserts a new empty detail after the specified index
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} expIndex - The index of the experience entry
+ * @param {number} detailIndex - The index after which to add the new detail
+ * @returns {void}
  */
 export const addExperienceDetail = (
   editedResume: ResumeContentObject,
@@ -158,11 +177,14 @@ export const addExperienceDetail = (
 };
 
 /**
- * Deletes a detail entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param expIndex - The index of the experience entry
- * @param detailIndex - The index of the detail entry to delete
+ * Deletes a bullet point detail from an experience entry
+ * Removes the detail at the specified index
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} expIndex - The index of the experience entry
+ * @param {number} detailIndex - The index of the detail to delete
+ * @returns {void}
  */
 export const deleteExperienceDetail = (
   editedResume: ResumeContentObject,
@@ -178,9 +200,12 @@ export const deleteExperienceDetail = (
 };
 
 /**
- * Adds a new experience entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
+ * Adds a new empty experience entry to the resume
+ * Creates a new experience entry with default values and adds it to the resume
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @returns {void}
  */
 export const addExperienceEntry = (
   editedResume: ResumeContentObject,
@@ -197,10 +222,13 @@ export const addExperienceEntry = (
 };
 
 /**
- * Deletes an experience entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param expIndex - The index of the experience entry to delete
+ * Deletes an experience entry from the resume
+ * Removes the experience entry at the specified index
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} expIndex - The index of the experience entry to delete
+ * @returns {void}
  */
 export const deleteExperienceEntry = (
   editedResume: ResumeContentObject,
@@ -213,12 +241,15 @@ export const deleteExperienceEntry = (
 };
 
 /**
- * For updating an education entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param index - The index of the education entry
- * @param field - The field to update
- * @param value - The new value for the field
+ * Handler for updating a field in an education entry
+ * Updates a specific field in a specific education entry when it loses focus
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} index - The index of the education entry to update
+ * @param {keyof Exclude<ResumeContentObject['education'], undefined>[number]} field - The field to update
+ * @param {string} value - The new value for the field
+ * @returns {void}
  */
 export const handleEducationBlur = (
   editedResume: ResumeContentObject,
@@ -233,9 +264,12 @@ export const handleEducationBlur = (
 };
 
 /**
- * Adds a new education entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
+ * Adds a new empty education entry to the resume
+ * Creates a new education entry with default values and adds it to the resume
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @returns {void}
  */
 export const addEducationEntry = (
   editedResume: ResumeContentObject,
@@ -252,10 +286,13 @@ export const addEducationEntry = (
 };
 
 /**
- * Deletes an education entry
- * @param editedResume - The current resume object
- * @param setEditedResume - The function to update the resume object
- * @param eduIndex - The index of the education entry to delete
+ * Deletes an education entry from the resume
+ * Removes the education entry at the specified index
+ *
+ * @param {ResumeContentObject} editedResume - The current resume object
+ * @param {function} setEditedResume - The function to update the resume object
+ * @param {number} eduIndex - The index of the education entry to delete
+ * @returns {void}
  */
 export const deleteEducationEntry = (
   editedResume: ResumeContentObject,
@@ -269,9 +306,11 @@ export const deleteEducationEntry = (
 
 /**
  * Merges suggested updates into the current resume object
- * @param currentResume - The current resume object
- * @param suggestedUpdates - Partial<ResumeContentObject> - The suggested updates
- * @returns ResumeContentObject - The updated resume object
+ * Handles complex merging logic for nested resume sections
+ *
+ * @param {ResumeContentObject} currentResume - The current resume object
+ * @param {Partial<ResumeContentObject>} suggestedUpdates - Suggested updates to merge
+ * @returns {ResumeContentObject} The merged resume object
  */
 export function mergeResumeUpdates(
   currentResume: ResumeContentObject,
