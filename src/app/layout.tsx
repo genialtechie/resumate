@@ -76,9 +76,9 @@ export const metadata: Metadata = {
       'Streamline your job search with our comprehensive AI toolkit. From resume optimization and cover letter generation to application tracking, we help you manage and improve every step of your job applications.',
     images: [
       {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
+        url: '/og-image.png',
+        width: 1536,
+        height: 1024,
         alt: 'qualifies.me - AI-Powered Job Application Suite',
       },
     ],
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     title: 'qualifies.me | AI-Powered Job Application Suite',
     description:
       'Streamline your job search with our comprehensive AI toolkit. From resume optimization and cover letter generation to application tracking, we help you manage and improve every step of your job applications.',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.png'],
   },
 };
 
