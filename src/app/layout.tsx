@@ -22,7 +22,7 @@ const bricolage = Bricolage_Grotesque({
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000';
+  : 'https://qualifies.me';
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
