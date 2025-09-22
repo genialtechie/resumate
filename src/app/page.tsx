@@ -1,16 +1,37 @@
 'use client';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import FeatureCard from '@/components/feature-card';
 import Link from 'next/link';
 import Image from 'next/image';
-import AuthDialog from '@/components/auth-dialog';
 import Footer from '@/components/footer';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import ResumeAnalysisAnimation from '@/components/homepage/resume-analysis-animation';
 
 export default function Home() {
+  const [showBanner, setShowBanner] = useState(false);
+
+  const handleAuthClick = () => {
+    setShowBanner(true);
+  };
+
   return (
     <div className="flex min-h-screen flex-col relative">
+      {showBanner && (
+        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-[100] w-11/12 max-w-md p-4 bg-yellow-300 border border-yellow-400 rounded-lg shadow-lg text-center animate-fade-in-down">
+          <p className="text-yellow-900 font-semibold">
+            ⚠️ this demo was built for a hackathon. auth services were tied to
+            temporary supabase credits and are now disabled.
+          </p>
+          <button
+            onClick={() => setShowBanner(false)}
+            className="absolute top-1 right-2 text-yellow-900 hover:text-black text-2xl font-bold"
+            aria-label="Close banner"
+          >
+            &times;
+          </button>
+        </div>
+      )}
       {/* Background with overlay */}
       <div
         className="fixed inset-0 z-0"
@@ -42,17 +63,14 @@ export default function Home() {
               />
             </Link>
           </div>
-          <AuthDialog
-            trigger={
-              <Button
-                variant="ghost"
-                className="text-white hover:bg-white/10"
-                aria-label="Sign in to your account"
-              >
-                Sign In
-              </Button>
-            }
-          />
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/10"
+            aria-label="Sign in to your account"
+            onClick={handleAuthClick}
+          >
+            Sign In
+          </Button>
         </div>
       </header>
 
@@ -95,17 +113,14 @@ export default function Home() {
                 significantly increase your interview chances.
               </p>
               <div className="pt-4 flex flex-col sm:flex-row gap-4">
-                <AuthDialog
-                  trigger={
-                    <Button
-                      size="lg"
-                      className="w-full sm:w-auto text-base"
-                      aria-label="Get started with a free account"
-                    >
-                      Get Started Free
-                    </Button>
-                  }
-                />
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto text-base"
+                  aria-label="Get started with a free account"
+                  onClick={handleAuthClick}
+                >
+                  Get Started Free
+                </Button>
                 <Button
                   variant="outline"
                   size="lg"
@@ -413,17 +428,14 @@ export default function Home() {
               Join thousands of job seekers who are landing more interviews with
               less effort
             </p>
-            <AuthDialog
-              trigger={
-                <Button
-                  size="lg"
-                  className="px-8 py-6 text-lg"
-                  aria-label="Get started with a free account"
-                >
-                  Get Started for Free
-                </Button>
-              }
-            />
+            <Button
+              size="lg"
+              className="px-8 py-6 text-lg"
+              aria-label="Get started with a free account"
+              onClick={handleAuthClick}
+            >
+              Get Started for Free
+            </Button>
             <p className="mt-4 text-sm text-gray-400">
               <span
                 className="mr-2"
