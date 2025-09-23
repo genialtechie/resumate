@@ -73,7 +73,7 @@ export abstract class BaseLLMService {
     }
     this.apiKey = apiKey;
     this.config = {
-      model: 'google/gemini-exp-1206:free',
+      model: 'x-ai/grok-4-fast:free',
       temperature: 0.1,
       max_tokens: 1500,
       ...config,

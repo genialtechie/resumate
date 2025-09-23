@@ -14,9 +14,11 @@ const listeners: TokenUpdateListener[] = [];
  * @param callback - The callback to call when a token update occurs
  * @returns A function to unsubscribe
  */
-export function subscribeToTokenUpdates(callback: TokenUpdateListener): () => void {
+export function subscribeToTokenUpdates(
+  callback: TokenUpdateListener
+): () => void {
   listeners.push(callback);
-  
+
   // Return unsubscribe function
   return () => {
     const index = listeners.indexOf(callback);
@@ -34,7 +36,7 @@ export function subscribeToTokenUpdates(callback: TokenUpdateListener): () => vo
 export function publishTokenUpdate(): void {
   // Use setTimeout to ensure this runs after the current call stack
   setTimeout(() => {
-    listeners.forEach(listener => listener());
+    listeners.forEach((listener) => listener());
   }, 0);
 }
 
@@ -45,8 +47,10 @@ export function publishTokenUpdate(): void {
 export async function triggerTokenUpdate(): Promise<void> {
   try {
     // Make a call to a simple API endpoint that will publish the update
-    await fetch('/api/user/tokens/update', { method: 'POST' });
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const url = new URL('/api/user/tokens/update', baseUrl);
+    await fetch(url.toString(), { method: 'POST' });
   } catch (error) {
     console.error('Failed to trigger token update:', error);
   }
-} 
+}

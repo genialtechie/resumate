@@ -10,7 +10,7 @@ export async function POST() {
   try {
     // Verify authentication (optional but recommended for security)
     await getUserIdFromRequest();
-    
+
     // Return a success response
     return NextResponse.json({ updated: true }, { status: 200 });
   } catch (error) {
@@ -25,4 +25,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-} 
+}

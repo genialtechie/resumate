@@ -25,7 +25,6 @@ export class ResumeTailor extends BaseLLMService {
   constructor(apiKey: string) {
     super(apiKey, {
       temperature: 0.2,
-      model: 'google/gemini-2.0-flash-exp:free',
       response_format: tailoringResponseFormat,
     });
   }
@@ -117,8 +116,16 @@ export class ResumeTailor extends BaseLLMService {
 
     Additional Guidelines:
     - Consistency: All missing requirements should directly match the extracted key requirements (i.e., the same string should appear in both keyRequirements and missingRequirements).
-    - ${options.preserveExperience ? 'Preserve the core experience details while optimizing their presentation.' : ''}
-    - ${options.maxSuggestedSkills ? `Limit suggested skills to the ${options.maxSuggestedSkills} most relevant ones.` : ''}
+    - ${
+      options.preserveExperience
+        ? 'Preserve the core experience details while optimizing their presentation.'
+        : ''
+    }
+    - ${
+      options.maxSuggestedSkills
+        ? `Limit suggested skills to the ${options.maxSuggestedSkills} most relevant ones.`
+        : ''
+    }
 
     Return a valid JSON object following the specified schema.`;
   }
