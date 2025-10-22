@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase
+# Ignore Supabase backup files
+supabase/*.backup
+
+# The user requested to remove this specific migration file.
+# Note: Migration files are typically version-controlled.
+# If you want to ignore all migrations, you could use 'supabase/migrations/*.sql'
+supabase/migrations/0000_init.sql

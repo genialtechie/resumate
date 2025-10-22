@@ -45,11 +45,22 @@ export function publishTokenUpdate(): void {
  * @returns void
  */
 export async function triggerTokenUpdate(): Promise<void> {
+  // Check if we're on the server side
+  const isServer = typeof window === 'undefined';
+  
+  if (isServer) {
+    // On server side, directly publish the update
+    // No need for an HTTP call since this is in-memory
+    publishTokenUpdate();
+    return;
+  }
+
+  // Client-side: make an API call to trigger update across all clients
   try {
-    // Make a call to a simple API endpoint that will publish the update
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const url = new URL('/api/user/tokens/update', baseUrl);
-    await fetch(url.toString(), { method: 'POST' });
+    await fetch('/api/user/tokens/update', { 
+      method: 'POST',
+      credentials: 'include' // Ensure cookies are sent
+    });
   } catch (error) {
     console.error('Failed to trigger token update:', error);
   }

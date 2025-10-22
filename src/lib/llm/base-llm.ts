@@ -73,7 +73,7 @@ export abstract class BaseLLMService {
     }
     this.apiKey = apiKey;
     this.config = {
-      model: 'x-ai/grok-4-fast:free',
+      model: process.env.OPENROUTER_MODEL,
       temperature: 0.1,
       max_tokens: 1500,
       ...config,
